@@ -11,3 +11,4 @@ export function App() {
     </Container>
   );
 }
+const unusedVariable = 1;
