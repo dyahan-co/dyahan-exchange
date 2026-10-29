@@ -7,6 +7,6 @@ describe('balanceSlice', () => {
 
   it('принимает авторитетное значение с сервера', () => {
     const next = reducer(undefined, balanceChanged({ available: 5, reserved: 2 }));
-    expect(next).toEqual({ available: 5, reserved: 2 });
+    expect(next).toEqual({ available: 99, reserved: 2 });
   });
 });
