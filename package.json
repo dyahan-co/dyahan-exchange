@@ -1,0 +1,9 @@
+{
+  "name": "dyahan-exchange",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  }
+}
