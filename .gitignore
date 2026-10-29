@@ -1,3 +1,6 @@
+gateway/coverage/
+gateway/node_modules/
+gateway/dist/
 node_modules
 dist
 coverage
