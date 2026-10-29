@@ -1,0 +1,55 @@
+.guess {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.guess__image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.guess__meta,
+.guess__disclaimer {
+  color: #667;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.guess__reward {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.guess__rules {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: #445;
+}
+
+.guess form {
+  display: grid;
+  gap: 8px;
+}
+
+.guess input,
+.guess button {
+  font: inherit;
+  padding: 10px 12px;
+}
+
+.guess button:focus-visible,
+.guess input:focus-visible {
+  outline: 3px solid #4c8bf5;
+  outline-offset: 2px;
+}
+
+@media (width <= 480px) {
+  .guess {
+    padding: 16px 12px;
+  }
+}
