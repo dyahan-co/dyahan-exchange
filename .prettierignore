@@ -5,3 +5,8 @@ package-lock.json
 playwright-report
 test-results
 *.pptx
+
+data-flow.md
+user-flow.md
+two-week-plan.md
+docs
