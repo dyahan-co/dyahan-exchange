@@ -23,6 +23,6 @@ jobs:
           cache: npm
           cache-dependency-path: gateway/package-lock.json
 
-      - run: npm ci
+      - run: npm install
       - run: npm run build
       - run: npm run test:cov
