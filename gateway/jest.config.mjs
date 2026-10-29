@@ -8,16 +8,12 @@ export default {
     '^.+\\.tsx?$': ['ts-jest', { useESM: true }],
   },
   testMatch: ['<rootDir>/src/**/*.spec.ts'],
-  collectCoverageFrom: [
-    'src/**/*.ts',
-    '!src/main.ts',
-    '!src/**/*.module.ts',
-  ],
+  collectCoverageFrom: ['src/**/*.ts', '!src/main.ts', '!src/**/*.module.ts'],
   coverageDirectory: './coverage',
 
   coverageThreshold: {
-  global: {
-    statements: 80,
+    global: {
+      statements: 80,
+    },
   },
-},
 };

@@ -26,7 +26,7 @@ describe('AppController', () => {
     });
   });
 
-    describe('demo login', () => {
+  describe('demo login', () => {
     it('returns a demo token and the provided name', () => {
       expect(appController.demoLogin({ name: 'Ян' })).toEqual({
         accessToken: 'demo-token',
@@ -41,13 +41,13 @@ describe('AppController', () => {
       });
     });
 
-      describe('me', () => {
-    it('returns the demo user profile', () => {
-      expect(appController.getMe()).toEqual({
-        id: 'demo-user',
-        name: 'Демо-пользователь',
+    describe('me', () => {
+      it('returns the demo user profile', () => {
+        expect(appController.getMe()).toEqual({
+          id: 'demo-user',
+          name: 'Демо-пользователь',
+        });
       });
     });
-  });
   });
 });
