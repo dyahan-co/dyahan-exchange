@@ -13,9 +13,10 @@ export function Header() {
         px: { xs: 2, md: 4 },
         display: 'flex',
         alignItems: 'center',
-        bgcolor: '#141414',
-        borderBottom: '1px solid #2A2A2A',
-        color: '#FFFFFF',
+        bgcolor: 'background.paper',
+        borderBottom: 1,
+        borderColor: 'divider',
+        color: 'text.primary',
         boxSizing: 'border-box',
       }}
     >
@@ -45,24 +46,24 @@ export function Header() {
 
         <Typography
           component="span"
-          sx={{
-            fontFamily: '"Yeseva One", serif',
+          sx={(theme) => ({
+            fontFamily: theme.typography.h1.fontFamily,
             fontSize: 16,
-            color: '#FFFFFF',
+            color: 'text.primary',
             whiteSpace: 'nowrap',
-          }}
+          })}
         >
           Дяхан
         </Typography>
 
         <Typography
           component="span"
-          sx={{
-            fontFamily: '"Yeseva One", serif',
+          sx={(theme) => ({
+            fontFamily: theme.typography.h1.fontFamily,
             fontSize: 16,
-            color: '#A5A5A5',
+            color: 'text.secondary',
             whiteSpace: 'nowrap',
-          }}
+          })}
         >
           Exchange
         </Typography>
@@ -88,21 +89,20 @@ export function Header() {
             to="/"
             color="inherit"
             disableRipple
-            sx={{
+            sx={(theme) => ({
               position: 'relative',
               minWidth: 0,
               px: { xs: 0.75, md: 1.5 },
               borderRadius: 0,
-              color: '#B8B8B8',
-              fontFamily: '"Yeseva One", serif',
+              color: 'text.secondary',
+              fontFamily: theme.typography.h1.fontFamily,
               fontSize: 11,
-              textTransform: 'none',
               whiteSpace: 'nowrap',
               '&:hover': {
                 bgcolor: 'transparent',
-                color: '#FFFFFF',
+                color: 'text.primary',
               },
-            }}
+            })}
           >
             {item}
           </Button>
@@ -113,17 +113,17 @@ export function Header() {
         component={RouterLink}
         to="/"
         underline="none"
-        sx={{
+        sx={(theme) => ({
           ml: 2,
           flexShrink: 0,
-          color: '#FFFFFF',
-          fontFamily: '"Yeseva One", serif',
+          color: 'text.primary',
+          fontFamily: theme.typography.h1.fontFamily,
           fontSize: 11,
           whiteSpace: 'nowrap',
           '&:hover': {
-            color: '#FFD000',
+            color: 'primary.main',
           },
-        }}
+        })}
       >
         Войти / регистрация
       </Link>
