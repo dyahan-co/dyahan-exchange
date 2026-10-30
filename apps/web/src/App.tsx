@@ -7,7 +7,7 @@ export function App() {
     <Box sx={{ minHeight: '100vh', bgcolor: '#0A0A0A' }}>
       <Header />
       <Container maxWidth="sm" sx={{ py: 4 }}>
-        <Typography variant="h3" component="h1" gutterBottom color='#FFFFFF'>
+        <Typography variant="h3" component="h1" gutterBottom color="#FFFFFF">
           Дяхан Exchange
         </Typography>
         <Balance />

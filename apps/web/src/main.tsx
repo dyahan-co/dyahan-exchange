@@ -12,10 +12,10 @@ createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Provider store={makeStore()}>
       <BrowserRouter>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <App />
-      </ThemeProvider>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <App />
+        </ThemeProvider>
       </BrowserRouter>
     </Provider>
   </React.StrictMode>,
