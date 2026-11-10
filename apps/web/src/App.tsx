@@ -15,3 +15,4 @@ export function App() {
     </Box>
   );
 }
+const unusedVariable = 1;
