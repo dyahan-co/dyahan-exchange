@@ -16,4 +16,19 @@ describe('App routes', () => {
       '/register',
     );
   });
+
+  it('renders the player market at the market route', () => {
+    render(
+      <MemoryRouter initialEntries={['/market']}>
+        <App />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole('heading', { name: /Рынок КУМcoin/ })).toBeInTheDocument();
+    expect(screen.getByText('28 КУМ / 1 200 д₽')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Вернуться к угадайке/ })).toHaveAttribute(
+      'href',
+      '/guess',
+    );
+  });
 });
