@@ -1,18 +1,19 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 
 export function LoginForm() {
-  const [nickname, setNickname] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(
     () => window.localStorage.getItem('dyahan.rememberNickname') === 'true',
   );
+  const [nickname, setNickname] = useState(() =>
+    window.localStorage.getItem('dyahan.rememberNickname') === 'true'
+      ? (window.localStorage.getItem('dyahan.nickname') ?? '')
+      : '',
+  );
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [capsLock, setCapsLock] = useState(false);
-  useEffect(() => {
-    if (remember) setNickname(window.localStorage.getItem('dyahan.nickname') ?? '');
-  }, [remember]);
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!nickname.trim() || !password) {
