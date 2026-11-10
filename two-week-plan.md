@@ -7,6 +7,7 @@
 | Ян | Spring Core, NestJS gateway, PostgreSQL, ledger и WebSocket |
 | Даниил | React, Canvas/WebAudio, Web Worker, unit/e2e и контроль качества |
 | Матвей | планирование, архитектурная координация, review, интеграция и observability |
+| Андрей | React UI компонентов, игровая логика |
 
 Конкретные задачи распределены с учётом ролей, а нагрузка выровнена: по пять самостоятельных задач каждому участнику и один общий review. У каждой задачи один accountable owner.
 
@@ -30,14 +31,19 @@
 | DX-02 | 18.09 | Ян | Зафиксировать ADR о границе NestJS/Spring и OpenAPI | согласованы auth, WebSocket, ownership данных и protocol; преподавателю отправлен вопрос на согласование backend-задач | — |
 | DX-03 | 19.09 | Даниил | Создать React/Vite shell и MUI theme | responsive layout: header, router, error boundary, theme; Lighthouse accessibility ≥ 90 для shell | DX-01 |
 | DX-04 | 19.09 | Матвей | Настроить правила репозитория и PR templates | protected main, CODEOWNERS/шаблон PR, convention веток; правила описаны в CONTRIBUTING | — |
+| DX-04.5 | 20.09 | Андрей | Базовые UI-компоненты дизайн-системы | созданы переиспользуемые компоненты в соответствии с темой | DX-03 |
 | DX-05 | 20.09 | Даниил | CI: lint, format, stylelint, unit, coverage | GitHub Actions блокирует merge при ошибке; coverage threshold 80%; есть отдельные демонстрационные PR для G3 | DX-03 |
 | DX-06 | 21.09 | Ян | Модель users + append-only ledger | миграции PostgreSQL; операции атомарны; duplicate idempotency key не меняет баланс второй раз | DX-02 |
 | DX-07 | 21.09 | Ян | NestJS gateway и demo auth | `POST /auth/demo`, `GET /me`; access token/cookie; rate limit; контрактные тесты | DX-02, DX-06 |
 | DX-08 | 22.09 | Матвей | Docker Compose и `make run` | frontend, gateway, core, postgres, redis стартуют одной командой на arm64; healthchecks зелёные | DX-06, DX-07 |
+| DX-08.5 | 23.09 | Андрей | Стейт-менеджмент пользовательской сессии | настроена работа с клиентом API/стейтом авторизации и баланса для отображения в UI | DX-03, DX-07 |
 | DX-09 | 24.09 | Ян | API слоп-угадайки | ответ скрыт от клиента; fuzzy match/синонимы версионированы; повторная отправка безопасна; reward в ledger | DX-06 |
+| DX-09.5 | 25.09 | Андрей | Клиентская игровая логика слоп-угадайки | реализованы хуки состояний, таймеры раунда, обработка и валидация ответов пользователя | DX-09, DX-08.5 |
 | DX-10 | 25.09 | Даниил | UI слоп-угадайки | загрузка/таймер/ответ/результат/retry; клавиатура и mobile; RTK Query; RTL tests | DX-03, DX-09 |
+| DX-10.5 | 26.09 | Андрей | Тестирование игровой логики | таймер, ввод, проверка ответа, начисление очков и кнопка retry работают без сбоев. | DX-09.5, DX-10 |
 | DX-11 | 26.09 | Даниил | Canvas-график + Web Worker | seed history + live ticks; расчёты вне main thread; pause в скрытой вкладке; 60 fps на целевом ноутбуке | DX-03, DX-07 |
 | DX-12 | 27.09 | Матвей | Аналитика и Sentry foundation | события `demo_started`, `round_started`, `round_finished`; нет PII; source maps; test error помечена environment | DX-03 |
+| DX-12.5 | 27.09 | Андрей | Адаптивность UI и мобильная верстка | интерфейс проверен на мобильных разрешениях | DX-10.5 |
 | DX-13 | 28.09 | Даниил | Playwright smoke flow | `публичный терминал → demo auth → guess round → balance +1`; network/seed детерминированы; видео/trace только на failure | DX-08, DX-10 |
 | DX-14 | 29.09 | Матвей | Продуктовая проверка первой вертикали | 5 тестовых пользователей проходят flow; проблемы классифицированы; критические исправлены | DX-10, DX-11 |
 | DX-15 | 30.09 | Ян | Черновой spike real-time дуэли | документирован протокол событий, reconnect и atomic settlement; demo двух вкладок без ставок | DX-07 |
