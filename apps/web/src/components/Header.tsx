@@ -111,7 +111,7 @@ export function Header() {
 
       <Link
         component={RouterLink}
-        to="/"
+        to="/login"
         underline="none"
         sx={(theme) => ({
           ml: 2,
