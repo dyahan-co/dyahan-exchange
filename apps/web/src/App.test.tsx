@@ -1,19 +1,19 @@
 import { render, screen } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import { makeStore } from './store';
-import { App } from './App';
 import { MemoryRouter } from 'react-router-dom';
+import { App } from './App';
 
-describe('App', () => {
-  it('рисует заголовок и блок баланса', () => {
+describe('App routes', () => {
+  it('renders the guest market at the root route', () => {
     render(
-      <Provider store={makeStore()}>
-        <MemoryRouter>
-          <App />
-        </MemoryRouter>
-      </Provider>,
+      <MemoryRouter initialEntries={['/']}>
+        <App />
+      </MemoryRouter>,
     );
-    expect(screen.getByRole('heading', { name: 'Дяхан Exchange' })).toBeInTheDocument();
-    expect(screen.getByTestId('balance-available')).toHaveTextContent('0 КУМ');
+
+    expect(screen.getByRole('heading', { name: /Рынок КУМcoin/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Создать аккаунт/ })).toHaveAttribute(
+      'href',
+      '/register',
+    );
   });
 });
