@@ -1,20 +1,11 @@
 import React, { useState } from 'react';
-import {
-  Box,
-  Container,
-  Typography,
-  Tabs,
-  Tab,
-  Link,
-  useTheme,
-} from '@mui/material';
+import { Box, Container, Typography, Tabs, Tab, Link, useTheme } from '@mui/material';
 import Grid2 from '@mui/material/Grid2';
 import { Link as RouterLink } from 'react-router-dom';
 import { MiniBalance } from '../components/MiniBalance';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../store';
 import { Shell } from '../app/Shell';
-
 
 interface Transaction {
   time: string;
@@ -83,183 +74,251 @@ export default function ProfilePage() {
 
   return (
     <Shell>
-        <Box
-      sx={{
-        color: 'text.primary',
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        pt: 4,
-        pb: 4,
-      }}
-    >
-      <Container maxWidth="lg">
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Typography color="text.secondary">
-            Аккаунт / Профиль
+      <Box
+        sx={{
+          color: 'text.primary',
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          pt: 4,
+          pb: 4,
+        }}
+      >
+        <Container maxWidth="lg">
+          <Box
+            sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}
+          >
+            <Typography color="text.secondary">Аккаунт / Профиль</Typography>
+            <MiniBalance />
+          </Box>
+
+          <Typography variant="h1" sx={{ fontSize: '3rem', mb: 1 }}>
+            Контрагент_42
           </Typography>
-          <MiniBalance/>
-        </Box>
-
-        <Typography variant="h1" sx={{ fontSize: '3rem', mb: 1 }}>
-          Контрагент_42
-        </Typography>
-        <Typography sx={{ color: 'primary.main', fontWeight: 500, mb: 5 }}>
-          Игрок · аккаунт активен
-        </Typography>
-
-        <Grid2 container spacing={2} sx={{ mb: 3 }}>
-          <Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
-            <Box sx={{ bgcolor: 'background.paper', p: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-                Можно потратить
-              </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 700, color: 'success.main' }}>
-                {available} КУМ
-              </Typography>
-            </Box>
-          </Grid2>
-
-          <Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
-            <Box sx={{ bgcolor: 'background.paper', p: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-                Заблокировано в P2P
-              </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 700, color: 'primary.main' }}>
-                {reserved} КУМ
-              </Typography>
-            </Box>
-          </Grid2>
-
-          <Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
-            <Box sx={{ bgcolor: 'background.paper', p: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-                Демо-рубли
-              </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary' }}>
-                {availableDr} дР
-              </Typography>
-            </Box>
-          </Grid2>
-
-          <Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
-            <Box sx={{ bgcolor: 'background.paper', p: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-                Кредит
-              </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary' }}>
-                Нет долга
-              </Typography>
-            </Box>
-          </Grid2>
-        </Grid2>
-
-        <Box
-          sx={{
-            bgcolor: 'background.paper',
-            p: 3,
-            borderRadius: 2,
-            border: '1px solid',
-            borderColor: 'divider',
-            mb: 6,
-          }}
-        >
-          <Typography sx={{ fontWeight: 600, color: 'primary.main', mb: 1 }}>
-            {reserved} КУМ ждут продажи по заявке #P42
+          <Typography sx={{ color: 'primary.main', fontWeight: 500, mb: 5 }}>
+            Игрок · аккаунт активен
           </Typography>
-          <Typography color="text.secondary">
-            Всего у вас {available + reserved} КУМ: {available} доступны, а {reserved} выставлены на продажу.<br />
-            Отмените заявку — все {available + reserved} КУМ снова доступны. Продадите — {reserved} КУМ получит покупатель.
+
+          <Grid2 container spacing={2} sx={{ mb: 3 }}>
+            <Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
+              <Box
+                sx={{
+                  bgcolor: 'background.paper',
+                  p: 3,
+                  borderRadius: 2,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: 'block', mb: 1 }}
+                >
+                  Можно потратить
+                </Typography>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: 'success.main' }}>
+                  {available} КУМ
+                </Typography>
+              </Box>
+            </Grid2>
+
+            <Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
+              <Box
+                sx={{
+                  bgcolor: 'background.paper',
+                  p: 3,
+                  borderRadius: 2,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: 'block', mb: 1 }}
+                >
+                  Заблокировано в P2P
+                </Typography>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: 'primary.main' }}>
+                  {reserved} КУМ
+                </Typography>
+              </Box>
+            </Grid2>
+
+            <Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
+              <Box
+                sx={{
+                  bgcolor: 'background.paper',
+                  p: 3,
+                  borderRadius: 2,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: 'block', mb: 1 }}
+                >
+                  Демо-рубли
+                </Typography>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary' }}>
+                  {availableDr} дР
+                </Typography>
+              </Box>
+            </Grid2>
+
+            <Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
+              <Box
+                sx={{
+                  bgcolor: 'background.paper',
+                  p: 3,
+                  borderRadius: 2,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{ display: 'block', mb: 1 }}
+                >
+                  Кредит
+                </Typography>
+                <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary' }}>
+                  Нет долга
+                </Typography>
+              </Box>
+            </Grid2>
+          </Grid2>
+
+          <Box
+            sx={{
+              bgcolor: 'background.paper',
+              p: 3,
+              borderRadius: 2,
+              border: '1px solid',
+              borderColor: 'divider',
+              mb: 6,
+            }}
+          >
+            <Typography sx={{ fontWeight: 600, color: 'primary.main', mb: 1 }}>
+              {reserved} КУМ ждут продажи по заявке #P42
+            </Typography>
+            <Typography color="text.secondary">
+              Всего у вас {available + reserved} КУМ: {available} доступны, а {reserved} выставлены
+              на продажу.
+              <br />
+              Отмените заявку — все {available + reserved} КУМ снова доступны. Продадите —{' '}
+              {reserved} КУМ получит покупатель.
+            </Typography>
+          </Box>
+
+          <Typography variant="h5" sx={{ mb: 3 }}>
+            История операций
           </Typography>
-        </Box>
 
-        <Typography variant="h5" sx={{ mb: 3 }}>
-          История операций
-        </Typography>
+          <Tabs
+            value={tabIndex}
+            onChange={handleTabChange}
+            sx={{
+              borderBottom: '1px solid',
+              borderColor: 'divider',
+              mb: 4,
+              '& .MuiTab-root': {
+                color: 'text.secondary',
+                textTransform: 'none',
+                fontWeight: 500,
+                fontSize: '1rem',
+                '&.Mui-selected': { color: 'text.primary' },
+              },
+              '& .MuiTabs-indicator': { bgcolor: 'primary.main' },
+            }}
+          >
+            <Tab label="Все операции" />
+            <Tab label="Игры" />
+            <Tab label="P2P" />
+            <Tab label="Кредит" />
+          </Tabs>
 
-        <Tabs
-          value={tabIndex}
-          onChange={handleTabChange}
-          sx={{
-            borderBottom: '1px solid',
-            borderColor: 'divider',
-            mb: 4,
-            '& .MuiTab-root': {
+          <Grid2
+            container
+            sx={{
+              px: 2,
+              pb: 2,
+              borderBottom: '1px solid',
+              borderColor: 'divider',
               color: 'text.secondary',
-              textTransform: 'none',
-              fontWeight: 500,
-              fontSize: '1rem',
-              '&.Mui-selected': { color: 'text.primary' },
-            },
-            '& .MuiTabs-indicator': { bgcolor: 'primary.main' },
-          }}
-        >
-          <Tab label="Все операции" />
-          <Tab label="Игры" />
-          <Tab label="P2P" />
-          <Tab label="Кредит" />
-        </Tabs>
+              fontSize: '0.85rem',
+            }}
+          >
+            <Grid2 size={2}>ВРЕМЯ</Grid2>
+            <Grid2 size={6}>ОПЕРАЦИЯ</Grid2>
+            <Grid2 size={2}>Изменение доступного</Grid2>
+            <Grid2 size={2} sx={{ textAlign: 'right' }}>
+              СТАТУС
+            </Grid2>
+          </Grid2>
 
-        <Grid2 container sx={{ px: 2, pb: 2, borderBottom: '1px solid', borderColor: 'divider', color: 'text.secondary', fontSize: '0.85rem' }}>
-          <Grid2 size={2}>ВРЕМЯ</Grid2>
-          <Grid2 size={6}>ОПЕРАЦИЯ</Grid2>
-          <Grid2 size={2}>Изменение доступного</Grid2>
-          <Grid2 size={2} sx={{ textAlign: 'right' }}>СТАТУС</Grid2>
-        </Grid2>
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            {filteredTransactions.map((tx, idx) => (
+              <Grid2
+                key={idx}
+                container
+                alignItems="center"
+                sx={{
+                  px: 2,
+                  py: 2.5,
+                  borderBottom: '1px solid',
+                  borderColor: 'divider',
+                  fontSize: '0.95rem',
+                }}
+              >
+                <Grid2 size={2} sx={{ color: 'text.secondary' }}>
+                  {tx.time}
+                </Grid2>
+                <Grid2 size={6} sx={{ fontWeight: 500 }}>
+                  {tx.operation}
+                </Grid2>
+                <Grid2 size={2} sx={{ color: getChangeColor(tx.changeColorKey), fontWeight: 600 }}>
+                  {tx.change}
+                </Grid2>
+                <Grid2 size={2} sx={{ textAlign: 'right', color: 'text.secondary' }}>
+                  {tx.status}
+                </Grid2>
+              </Grid2>
+            ))}
+          </Box>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          {filteredTransactions.map((tx, idx) => (
-            <Grid2
-              key={idx}
-              container
-              alignItems="center"
+          <Box sx={{ mt: 5 }}>
+            <Link
+              component={RouterLink}
+              to="/login"
+              underline="none"
               sx={{
-                px: 2,
-                py: 2.5,
-                borderBottom: '1px solid',
-                borderColor: 'divider',
+                color: 'primary.main',
+                fontWeight: 600,
                 fontSize: '0.95rem',
+                '&:hover': { opacity: 0.8 },
               }}
             >
-              <Grid2 size={2} sx={{ color: 'text.secondary' }}>
-                {tx.time}
-              </Grid2>
-              <Grid2 size={6} sx={{ fontWeight: 500 }}>
-                {tx.operation}
-              </Grid2>
-              <Grid2 size={2} sx={{ color: getChangeColor(tx.changeColorKey), fontWeight: 600 }}>
-                {tx.change}
-              </Grid2>
-              <Grid2 size={2} sx={{ textAlign: 'right', color: 'text.secondary' }}>
-                {tx.status}
-              </Grid2>
-            </Grid2>
-          ))}
-        </Box>
+              Выйти из аккаунта →
+            </Link>
+          </Box>
+        </Container>
 
-        <Box sx={{ mt: 5 }}>
-          <Link
-            component={RouterLink}
-            to="/login"
-            underline="none"
-            sx={{ color: 'primary.main', fontWeight: 600, fontSize: '0.95rem', '&:hover': { opacity: 0.8 } }}
+        <Container maxWidth="lg">
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ borderTop: '1px solid', borderColor: 'divider', pt: 2, display: 'block', mt: 4 }}
           >
-            Выйти из аккаунта →
-          </Link>
-        </Box>
-      </Container>
-
-      <Container maxWidth="lg">
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          sx={{ borderTop: '1px solid', borderColor: 'divider', pt: 2, display: 'block', mt: 4 }}
-        >
-          Учебный проект. КУМ и дР — игровые единицы. Реальных платежей нет.
-        </Typography>
-      </Container>
-    </Box>
+            Учебный проект. КУМ и дР — игровые единицы. Реальных платежей нет.
+          </Typography>
+        </Container>
+      </Box>
     </Shell>
   );
 }

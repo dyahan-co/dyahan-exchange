@@ -6,7 +6,7 @@ export interface BalanceState {
   reserved: number;
 }
 
-const initialState: BalanceState = { available: 10, availableDr: 20, reserved: 40 };
+const initialState: BalanceState = { available: 0, availableDr: 0, reserved: 0 };
 
 const balanceSlice = createSlice({
   name: 'balance',

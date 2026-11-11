@@ -11,7 +11,7 @@ export function MarketTerminal({ player = false }: { player?: boolean }) {
       <main className="market-content">
         <div className="crumb-row">
           <span>Обзор / Рынок</span>
-          <span>{player ? <MiniBalance/> : 'Гостевой доступ'}</span>
+          <span>{player ? <MiniBalance /> : 'Гостевой доступ'}</span>
         </div>
         <h1>Рынок КУМcoin</h1>
         <section className="market-grid">

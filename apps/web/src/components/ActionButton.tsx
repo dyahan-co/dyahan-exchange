@@ -3,10 +3,10 @@ import { Button, ButtonProps } from '@mui/material';
 
 // Extend ButtonProps so it properly accepts router props when using `component`
 export function ActionButton<C extends React.ElementType = 'button'>(
-  props: ButtonProps<C, { component?: C }>
+  props: ButtonProps<C, { component?: C }>,
 ) {
   const { children, sx, ...rest } = props;
-  
+
   return (
     <Button
       type="submit"

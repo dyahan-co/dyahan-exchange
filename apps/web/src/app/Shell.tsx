@@ -7,7 +7,11 @@ const disclaimer = 'Учебный проект. КУМ и д₽ — игров�
 export function Shell({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   const market = pathname === '/' || pathname === '/market';
-  const player = pathname === '/market' || pathname === '/profile' || pathname === '/intro' || pathname.startsWith('/guess');
+  const player =
+    pathname === '/market' ||
+    pathname === '/profile' ||
+    pathname === '/intro' ||
+    pathname.startsWith('/guess');
   return (
     <div className={`prototype-shell ${market ? 'market-shell' : 'account-shell'}`}>
       <div className="design-frame shell-frame">
@@ -27,7 +31,10 @@ export function Shell({ children }: { children: ReactNode }) {
             <Link to="/market#bank">Банк</Link>
             <Link to="/market#community">Сообщество</Link>
           </nav>
-          <Link className={`account-link ${player ? 'player-account' : ''}`} to={player ? ('/profile') : ('/login')}>
+          <Link
+            className={`account-link ${player ? 'player-account' : ''}`}
+            to={player ? '/profile' : '/login'}
+          >
             {player ? (
               <>
                 <span className="player-avatar">К</span>Контрагент_42 <small>⌄</small>

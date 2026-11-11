@@ -26,7 +26,7 @@ describe('Shell', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('link', { name: /Контрагент_42/ })).toHaveAttribute('href', '/login');
+    expect(screen.getByRole('link', { name: /Контрагент_42/ })).toHaveAttribute('href', '/profile');
     expect(screen.getByRole('link', { name: 'Рынок' })).toHaveAttribute('href', '/market');
     unmount();
 

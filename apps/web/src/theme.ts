@@ -16,10 +16,10 @@ export const theme = createTheme({
     },
     divider: '#2A2A2A',
     success: {
-      main: '#B7F34A'
+      main: '#B7F34A',
     },
     error: {
-      main: '#FF4D4F'
+      main: '#FF4D4F',
     },
   },
 
