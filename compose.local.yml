@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: dyahan-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: dyahan
+      POSTGRES_USER: dyahan
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set}
+
+    ports:
+      - '127.0.0.1:5433:5432'
+
+    volumes:
+      - dyahan_postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U dyahan -d dyahan']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  dyahan_postgres_data:

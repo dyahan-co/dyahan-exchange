@@ -6,91 +6,168 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Entity
 @Table(name = "accounts")
 public class Account {
-    @Id
-    @Column(nullable = false, updatable = false)
-    private UUID id;
 
-    @Column(name = "owner_id")
-    private UUID ownerId;
+  @Id
+  @Column(nullable = false, updatable = false)
+  private UUID id;
 
-    @Column(name = "account_type", nullable = false, length = 10)
-    private String accountType;
+  @Column(name = "owner_id")
+  private UUID ownerId;
 
-    @Column(name = "system_code", length = 40)
-    private String systemCode;
+  @Column(name = "account_type", nullable = false, length = 10)
+  private String accountType;
 
-    @Column(name = "currency", nullable = false, length = 10)
-    private String currency;
+  @Column(name = "system_code", length = 40)
+  private String systemCode;
 
-    @Column(name = "balance_minor", nullable = false)
-    private long balanceMinor;
+  @Column(nullable = false, length = 10)
+  private String currency;
 
-    @Column(name = "held_minor", nullable = false)
-    private long heldMinor;
+  @Column(name = "balance_minor", nullable = false)
+  private long balanceMinor;
 
-    @Version
-    @Column(name = "version", nullable = false)
-    private long version;
+  @Column(name = "held_minor", nullable = false)
+  private long heldMinor;
 
-    protected Account() {
-        // Нужен JPA.
+  @Version
+  @Column(nullable = false)
+  private long version;
+
+  protected Account() {
+    // Для JPA.
+  }
+
+  public Account(UUID id, UUID ownerId, String currency) {
+    this.id = Objects.requireNonNull(id);
+    this.ownerId = Objects.requireNonNull(ownerId);
+    this.currency = Objects.requireNonNull(currency);
+    this.accountType = "USER";
+  }
+
+  public long getAvailableMinor() {
+    return Math.subtractExact(balanceMinor, heldMinor);
+  }
+
+  public void applyDelta(long deltaMinor) {
+    if (deltaMinor == 0) {
+      throw new IllegalArgumentException(
+        "Изменение баланса не может быть нулевым"
+      );
     }
 
-    public Account(UUID id, UUID ownerId, String currency) {
-        this.id = id;
-        this.ownerId = ownerId;
-        this.accountType = "USER";
-        this.currency = currency;
+    long newBalance = Math.addExact(balanceMinor, deltaMinor);
+
+    if (isUserAccount() && newBalance < heldMinor) {
+      throw new IllegalStateException(
+        "Списание нарушает обеспечение резервов"
+      );
     }
 
-    public void applyDelta(long deltaMinor) {
-        if (deltaMinor == 0) {
-            throw new IllegalArgumentException("Изменение баланса не может быть нулевым");
-        }
+    this.balanceMinor = newBalance;
+  }
 
-        long newBalance = Math.addExact(balanceMinor, deltaMinor);
+  public void reserve(long amountMinor) {
+    requireUserAccount();
+    requirePositive(amountMinor);
 
-        if ("USER".equals(accountType) && newBalance < 0) {
-            throw new IllegalStateException("Баланс пользовательского счёта не может быть отрицательным");
-        }
-
-        this.balanceMinor = newBalance;
+    if (getAvailableMinor() < amountMinor) {
+      throw new InsufficientFundsException();
     }
 
-    public UUID getId() {
-        return id;
+    this.heldMinor = Math.addExact(heldMinor, amountMinor);
+  }
+
+  public void release(long amountMinor) {
+    requireUserAccount();
+    requirePositive(amountMinor);
+
+    if (heldMinor < amountMinor) {
+      throw new IllegalStateException(
+        "Размер освобождения превышает резерв"
+      );
     }
 
-    public UUID getOwnerId() {
-        return ownerId;
+    this.heldMinor = Math.subtractExact(heldMinor, amountMinor);
+  }
+
+  public void capture(long amountMinor) {
+    requireUserAccount();
+    requirePositive(amountMinor);
+
+    if (heldMinor < amountMinor) {
+      throw new IllegalStateException(
+        "Недостаточно зарезервированных средств"
+      );
     }
 
-    public String getAccountType() {
-        return accountType;
+    long newHeld = Math.subtractExact(heldMinor, amountMinor);
+    long newBalance = Math.subtractExact(balanceMinor, amountMinor);
+
+    if (newBalance < newHeld) {
+      throw new IllegalStateException(
+        "Списание нарушает обеспечение других резервов"
+      );
     }
 
-    public String getSystemCode() {
-        return systemCode;
-    }
+    this.heldMinor = newHeld;
+    this.balanceMinor = newBalance;
+  }
 
-    public String getCurrency() {
-        return currency;
-    }
+  private boolean isUserAccount() {
+    return "USER".equals(accountType);
+  }
 
-    public long getBalanceMinor() {
-        return balanceMinor;
+  private void requireUserAccount() {
+    if (!isUserAccount()) {
+      throw new IllegalStateException(
+        "Системный счёт не поддерживает резервы"
+      );
     }
+  }
 
-    public long getHeldMinor() {
-        return heldMinor;
+  private static void requirePositive(long amountMinor) {
+    if (amountMinor <= 0) {
+      throw new IllegalArgumentException(
+        "Сумма должна быть положительной"
+      );
     }
+  }
 
-    public long getVersion() {
-        return version;
-    }
+  public UUID getId() {
+    return id;
+  }
+
+  public UUID getOwnerId() {
+    return ownerId;
+  }
+
+  public String getAccountType() {
+    return accountType;
+  }
+
+  public String getSystemCode() {
+    return systemCode;
+  }
+
+  public String getCurrency() {
+    return currency;
+  }
+
+  public long getBalanceMinor() {
+    return balanceMinor;
+  }
+
+  public long getHeldMinor() {
+    return heldMinor;
+  }
+
+  public long getVersion() {
+    return version;
+  }
 }

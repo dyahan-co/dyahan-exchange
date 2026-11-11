@@ -10,11 +10,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
-    boolean existsByNicknameNormalized(String nicknameNormalized);
 
-    Optional<User> findByNicknameNormalized(String nicknameNormalized);
+  boolean existsByNicknameNormalized(String nicknameNormalized);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select user from User user where user.id = :userId")
-    Optional<User> findByIdForUpdate(@Param("userId") UUID userId);
+  Optional<User> findByNicknameNormalized(String nicknameNormalized);
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("select u from User u where u.id = :userId")
+  Optional<User> findByIdForUpdate(@Param("userId") UUID userId);
 }
