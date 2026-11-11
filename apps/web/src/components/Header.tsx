@@ -1,10 +1,47 @@
 import { Box, Button, Link, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import logo from '../assets/logo.png';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../store';
 
 const navigationItems = ['Рынок', 'Игры', 'P2P', 'Чат', 'Банк', 'Сообщество'];
 
 export function Header() {
+  const { nickname, isLoggedIn } = useSelector((s: RootState) => s.user);
+  let userLink;
+  if (isLoggedIn){
+    userLink = (
+      <Link
+        component={RouterLink}
+        to="/profile"
+        underline="none"
+        sx={{ color: 'text.primary', fontWeight: 600, '&:hover': { color: 'primary.main' } }}
+      >
+        {nickname}
+      </Link>
+    );
+  }
+  else{
+    userLink = (<Link
+        component={RouterLink}
+        to="/login"
+        underline="none"
+        sx={(theme) => ({
+          ml: 2,
+          flexShrink: 0,
+          color: 'text.primary',
+          fontFamily: theme.typography.h1.fontFamily,
+          fontSize: 11,
+          whiteSpace: 'nowrap',
+          '&:hover': {
+            color: 'primary.main',
+          },
+        })}
+      >
+        Войти / регистрация
+      </Link>);
+  }
+
   return (
     <Box
       component="header"
@@ -109,24 +146,8 @@ export function Header() {
         ))}
       </Box>
 
-      <Link
-        component={RouterLink}
-        to="/login"
-        underline="none"
-        sx={(theme) => ({
-          ml: 2,
-          flexShrink: 0,
-          color: 'text.primary',
-          fontFamily: theme.typography.h1.fontFamily,
-          fontSize: 11,
-          whiteSpace: 'nowrap',
-          '&:hover': {
-            color: 'primary.main',
-          },
-        })}
-      >
-        Войти / регистрация
-      </Link>
+      {userLink}
+      
     </Box>
   );
 }

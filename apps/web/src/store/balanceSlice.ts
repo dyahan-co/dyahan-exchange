@@ -2,10 +2,11 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 export interface BalanceState {
   available: number;
+  availableDr: number;
   reserved: number;
 }
 
-const initialState: BalanceState = { available: 0, reserved: 0 };
+const initialState: BalanceState = { available: 10, availableDr: 20, reserved: 40 };
 
 const balanceSlice = createSlice({
   name: 'balance',
@@ -14,6 +15,7 @@ const balanceSlice = createSlice({
     // Сервер — источник истины: клиент лишь принимает авторитетное значение.
     balanceChanged(state, action: PayloadAction<BalanceState>) {
       state.available = action.payload.available;
+      state.availableDr = action.payload.availableDr;
       state.reserved = action.payload.reserved;
     },
   },

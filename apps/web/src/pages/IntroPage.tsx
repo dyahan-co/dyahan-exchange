@@ -27,7 +27,7 @@ export default function IntroPage() {
     >
       <Container maxWidth="lg">
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography color="text.secondary">
             Аккаунт / Первое знакомство
           </Typography>
           <MiniBalance/>
@@ -37,7 +37,7 @@ export default function IntroPage() {
           Добро пожаловать
         </Typography>
 
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 6 }}>
+        <Typography color="text.secondary" sx={{ mb: 6 }}>
           Сначала попробуйте угадайку. Она бесплатная — даже при нулевом балансе.
         </Typography>
 
@@ -45,42 +45,42 @@ export default function IntroPage() {
           <Grid2 size={{ xs: 12, md: 6 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, mb: 6 }}>
               <Box sx={{ display: 'flex', gap: 3, alignItems: 'flex-start', borderBottom: '1px solid', borderColor: 'divider', pb: 3 }}>
-                <Typography variant="body2" color="text.secondary" sx={{ minWidth: '24px', pt: 0.5 }}>
+                <Typography color="text.secondary" sx={{ minWidth: '24px', pt: 0.5 }}>
                   01
                 </Typography>
                 <Box>
                   <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
                     Посмотрите картинку
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography color="text.secondary">
                     Назовите, что на ней происходит. На ответ — 60 секунд.
                   </Typography>
                 </Box>
               </Box>
 
               <Box sx={{ display: 'flex', gap: 3, alignItems: 'flex-start', borderBottom: '1px solid', borderColor: 'divider', pb: 3 }}>
-                <Typography variant="body2" color="text.secondary" sx={{ minWidth: '24px', pt: 0.5 }}>
+                <Typography color="text.secondary" sx={{ minWidth: '24px', pt: 0.5 }}>
                   02
                 </Typography>
                 <Box>
                   <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
                     Отправьте один ответ
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography color="text.secondary">
                     Сервер проверит название и близкие формулировки.
                   </Typography>
                 </Box>
               </Box>
 
               <Box sx={{ display: 'flex', gap: 3, alignItems: 'flex-start' }}>
-                <Typography variant="body2" color="text.secondary" sx={{ minWidth: '24px', pt: 0.5 }}>
+                <Typography color="text.secondary" sx={{ minWidth: '24px', pt: 0.5 }}>
                   03
                 </Typography>
                 <Box>
                   <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
                     Получите +1 КУМ
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography color="text.secondary">
                     Потратьте игровую валюту на дуэль, рулетку или P2P.
                   </Typography>
                 </Box>

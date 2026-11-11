@@ -1,5 +1,7 @@
 import React from 'react';
 import { Box, Typography, SxProps, Theme } from '@mui/material';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../store';
 
 interface MiniBalanceProps {
   kum?: number | string;
@@ -7,14 +9,25 @@ interface MiniBalanceProps {
   sx?: SxProps<Theme>;
 }
 
-export function MiniBalance({ kum = 28, dr = 1200, sx }: MiniBalanceProps) {
+export function MiniBalance({ sx }: MiniBalanceProps) {
+    const { available, availableDr } = useSelector((s: RootState) => s.balance);
+    const { isLoggedIn } = useSelector((s: RootState) => s.user);
+    let content;
+    if (isLoggedIn){
+        content = (<Typography color='text.secondary'>
+        {available} КУМ / {availableDr} дР
+      </Typography>);
+    }
+    else{
+        content = (<Typography color="text.secondary">
+            Гостевой доступ
+          </Typography>);
+    }
   return (
     <Box
       sx={{...sx}}
     >
-      <Typography variant="body2" color='text.secondary'>
-        {kum} КУМ / {dr} дР
-      </Typography>
+      {content}
     </Box>
   );
 }

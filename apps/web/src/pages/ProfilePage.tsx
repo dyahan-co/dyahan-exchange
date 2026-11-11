@@ -11,6 +11,8 @@ import {
 import Grid2 from '@mui/material/Grid2';
 import { Link as RouterLink } from 'react-router-dom';
 import { MiniBalance } from '../components/MiniBalance';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../store';
 
 interface Transaction {
   time: string;
@@ -51,6 +53,7 @@ const mockTransactions: Transaction[] = [
 export default function ProfilePage() {
   const theme = useTheme();
   const [tabIndex, setTabIndex] = useState(0);
+  const { available, availableDr, reserved } = useSelector((s: RootState) => s.balance);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabIndex(newValue);
@@ -91,7 +94,7 @@ export default function ProfilePage() {
     >
       <Container maxWidth="lg">
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography color="text.secondary">
             Аккаунт / Профиль
           </Typography>
           <MiniBalance/>
@@ -100,7 +103,7 @@ export default function ProfilePage() {
         <Typography variant="h1" sx={{ fontSize: '3rem', mb: 1 }}>
           Контрагент_42
         </Typography>
-        <Typography variant="body2" sx={{ color: 'primary.main', fontWeight: 500, mb: 5 }}>
+        <Typography sx={{ color: 'primary.main', fontWeight: 500, mb: 5 }}>
           Игрок · аккаунт активен
         </Typography>
 
@@ -111,7 +114,7 @@ export default function ProfilePage() {
                 Можно потратить
               </Typography>
               <Typography variant="h4" sx={{ fontWeight: 700, color: 'success.main' }}>
-                28 КУМ
+                {available} КУМ
               </Typography>
             </Box>
           </Grid2>
@@ -122,7 +125,7 @@ export default function ProfilePage() {
                 Заблокировано в P2P
               </Typography>
               <Typography variant="h4" sx={{ fontWeight: 700, color: 'primary.main' }}>
-                4 КУМ
+                {reserved} КУМ
               </Typography>
             </Box>
           </Grid2>
@@ -133,7 +136,7 @@ export default function ProfilePage() {
                 Демо-рубли
               </Typography>
               <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary' }}>
-                1 200 дР
+                {availableDr} дР
               </Typography>
             </Box>
           </Grid2>
@@ -160,12 +163,12 @@ export default function ProfilePage() {
             mb: 6,
           }}
         >
-          <Typography variant="body1" sx={{ fontWeight: 600, color: 'primary.main', mb: 1 }}>
-            4 КУМ ждут продажи по заявке #P42
+          <Typography sx={{ fontWeight: 600, color: 'primary.main', mb: 1 }}>
+            {reserved} КУМ ждут продажи по заявке #P42
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Всего у вас 32 КУМ: 28 доступны, а 4 выставлены на продажу.<br />
-            Отмените заявку — все 32 КУМ снова доступны. Продадите — 4 КУМ получит покупатель.
+          <Typography color="text.secondary">
+            Всего у вас {available + reserved} КУМ: {available} доступны, а {reserved} выставлены на продажу.<br />
+            Отмените заявку — все {available + reserved} КУМ снова доступны. Продадите — {reserved} КУМ получит покупатель.
           </Typography>
         </Box>
 
