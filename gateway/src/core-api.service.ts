@@ -17,6 +17,7 @@ export class CoreApiService {
     method: CoreHttpMethod,
     authorization?: string,
     body?: unknown,
+    idempotencyKey?: string,
   ): Promise<CoreApiResult> {
     const headers: Record<string, string> = {
       Accept: 'application/json',
@@ -26,11 +27,16 @@ export class CoreApiService {
       headers.Authorization = authorization;
     }
 
+    if (idempotencyKey) {
+      headers['Idempotency-Key'] = idempotencyKey;
+    }
+
     if (body !== undefined) {
       headers['Content-Type'] = 'application/json';
     }
 
     let upstream: Response;
+    let text: string;
 
     try {
       upstream = await fetch(new URL(path, this.baseUrl), {
@@ -38,6 +44,8 @@ export class CoreApiService {
         headers,
         body: body === undefined ? undefined : JSON.stringify(body),
       });
+
+      text = await upstream.text();
     } catch {
       throw new ServiceUnavailableException({
         code: 'CORE_UNAVAILABLE',
@@ -45,7 +53,6 @@ export class CoreApiService {
       });
     }
 
-    const text = await upstream.text();
     let responseBody: unknown = null;
 
     if (text.length > 0) {
