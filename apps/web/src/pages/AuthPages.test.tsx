@@ -1,18 +1,18 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../app/App';
 import { session } from '../auth/session';
+import { makeStore } from '../store';
 
 vi.mock('../auth/session', () => ({
   session: {
-    getToken: vi.fn().mockReturnValue(null),
-    getUser: vi.fn().mockReturnValue(null),
+    getToken: vi.fn(),
     login: vi.fn(),
     register: vi.fn(),
-    restore: vi.fn().mockResolvedValue(null),
-    logout: vi.fn().mockResolvedValue(undefined),
-    clear: vi.fn(),
+    restore: vi.fn(),
+    getUser: vi.fn(),
   },
 }));
 
@@ -25,9 +25,11 @@ const mockUser = {
 
 function renderAt(path: string) {
   return render(
-    <MemoryRouter initialEntries={[path]}>
-      <App />
-    </MemoryRouter>,
+    <Provider store={makeStore()}>
+      <MemoryRouter initialEntries={[path]}>
+        <App />
+      </MemoryRouter>
+    </Provider>,
   );
 }
 
@@ -42,6 +44,10 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(session.login).mockResolvedValue(mockUser);
   vi.mocked(session.register).mockResolvedValue(mockUser);
+  vi.mocked(session.restore).mockResolvedValue(mockUser);
+  vi.mocked(session.getUser).mockReturnValue(mockUser);
+  vi.mocked(session.login).mockResolvedValue(mockUser);
+  vi.mocked(session.getToken).mockReturnValue(null);
 });
 
 describe('LoginPage and LoginForm', () => {
@@ -179,5 +185,6 @@ describe('RegisterPage and RegisterForm', () => {
     await waitFor(() => {
       expect(session.register).toHaveBeenCalledWith('Daniil', 'Abcdefg1');
     });
+    expect(await screen.findByRole('heading', { name: /Добро пожаловать/ })).toBeInTheDocument();
   });
 });

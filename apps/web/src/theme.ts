@@ -15,20 +15,16 @@ export const theme = createTheme({
       secondary: '#A5A5A5',
     },
     divider: '#2A2A2A',
+    success: {
+      main: '#B7F34A',
+    },
+    error: {
+      main: '#FF4D4F',
+    },
   },
 
   typography: {
-    fontFamily: 'Arial, sans-serif',
-
-    h1: {
-      fontFamily: '"Yeseva One", serif',
-      fontWeight: 400,
-    },
-
-    h2: {
-      fontFamily: '"Yeseva One", serif',
-      fontWeight: 400,
-    },
+    fontFamily: '"Yeseva One", serif',
 
     button: {
       textTransform: 'none',

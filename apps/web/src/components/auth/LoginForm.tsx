@@ -1,10 +1,11 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ApiError } from '../../api/dyahanApi';
 import { session } from '../../auth/session';
 
 export function LoginForm() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [remember, setRemember] = useState(
     () => window.localStorage.getItem('dyahan.rememberNickname') === 'true',
@@ -47,7 +48,14 @@ export function LoginForm() {
 
     try {
       await session.login(cleanNickname, password);
-      navigate('/guess', { replace: true });
+      const requestedPath = (location.state as { from?: unknown } | null)?.from;
+      const destination =
+        typeof requestedPath === 'string' &&
+        requestedPath.startsWith('/') &&
+        !requestedPath.startsWith('//')
+          ? requestedPath
+          : '/guess';
+      navigate(destination, { replace: true });
     } catch (error) {
       setMessage(
         error instanceof ApiError ? error.message : 'Не удалось войти. Попробуйте ещё раз.',

@@ -37,7 +37,7 @@ export function RegisterForm({ onNickname }: { onNickname?: (nickname: string) =
     setSubmitting(true);
     try {
       await session.register(cleanNickname, password);
-      navigate('/guess', { replace: true });
+      navigate('/intro', { replace: true });
     } catch (error) {
       setMessage(
         error instanceof ApiError

@@ -7,7 +7,7 @@ import { Balance } from './Balance';
 describe('Balance', () => {
   it('показывает баланс и резерв из стора', () => {
     const store = makeStore();
-    store.dispatch(balanceChanged({ available: 42, reserved: 7 }));
+    store.dispatch(balanceChanged({ available: 42, availableDr: 0, reserved: 7 }));
     render(
       <Provider store={store}>
         <Balance />
