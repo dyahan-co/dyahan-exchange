@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { Shell } from './Shell';
+
+afterEach(() => window.localStorage.clear());
 
 describe('Shell', () => {
   it('shows guest market navigation and disclaimer on the root route', () => {
@@ -20,6 +22,15 @@ describe('Shell', () => {
   });
 
   it('shows player navigation on market and guess routes', () => {
+    window.localStorage.setItem(
+      'dyahan.sessionUser',
+      JSON.stringify({
+        userId: 'user-1',
+        nickname: 'Контрагент_42',
+        role: 'PLAYER',
+        status: 'ACTIVE',
+      }),
+    );
     const { unmount } = render(
       <MemoryRouter initialEntries={['/market']}>
         <Shell>Player content</Shell>

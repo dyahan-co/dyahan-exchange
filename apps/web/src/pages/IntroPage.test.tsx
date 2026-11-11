@@ -6,7 +6,7 @@ import { makeStore } from '../store';
 import IntroPage from './IntroPage';
 
 describe('IntroPage', () => {
-  it('renders the welcome guide and casino chips image', () => {
+  it('renders the onboarding guide', () => {
     render(
       <Provider store={makeStore()}>
         <MemoryRouter initialEntries={['/intro']}>
@@ -15,19 +15,14 @@ describe('IntroPage', () => {
       </Provider>,
     );
 
-    expect(screen.getByRole('heading', { name: 'Добро пожаловать' })).toBeInTheDocument();
-    expect(
-      screen.getByText('Сначала попробуйте угадайку. Она бесплатная — даже при нулевом балансе.'),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Посмотрите картинку' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Отправьте один ответ' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Получите +1 КУМ' })).toBeInTheDocument();
-    expect(
-      screen.getByRole('img', { name: 'Dyahan Exchange Casino Chips Stack' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Добро пожаловать/ })).toBeInTheDocument();
+    expect(screen.getByText(/Начните с бесплатной угадайки/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Посмотрите на картинку' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Отправьте свой вариант' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Получите награду' })).toBeInTheDocument();
   });
 
-  it('links to the terminal from both primary actions', () => {
+  it('links to the guessing game and market', () => {
     render(
       <Provider store={makeStore()}>
         <MemoryRouter initialEntries={['/intro']}>
@@ -37,6 +32,6 @@ describe('IntroPage', () => {
     );
 
     expect(screen.getByRole('link', { name: 'Начать угадайку' })).toHaveAttribute('href', '/guess');
-    expect(screen.getByRole('link', { name: 'Перейти в терминал' })).toHaveAttribute('href', '/market');
+    expect(screen.getByRole('link', { name: 'Открыть рынок' })).toHaveAttribute('href', '/market');
   });
 });

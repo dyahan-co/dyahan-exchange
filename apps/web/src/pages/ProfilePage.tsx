@@ -1,324 +1,138 @@
-import React, { useState } from 'react';
-import { Box, Container, Typography, Tabs, Tab, Link, useTheme } from '@mui/material';
-import Grid2 from '@mui/material/Grid2';
-import { Link as RouterLink } from 'react-router-dom';
-import { MiniBalance } from '../components/MiniBalance';
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import type { RootState } from '../store';
 import { Shell } from '../app/Shell';
+import { MiniBalance } from '../components/MiniBalance';
+import { session } from '../auth/session';
+import type { RootState } from '../store';
+import './feature-pages.css';
 
-interface Transaction {
-  time: string;
-  operation: string;
-  change: string;
-  changeColorKey?: 'primary' | 'success' | 'error' | 'text';
-  status: string;
-  category: 'games' | 'p2p' | 'credit';
-}
+const filters = [
+  { id: 'all', label: 'Все операции' },
+  { id: 'games', label: 'Игры' },
+  { id: 'p2p', label: 'P2P' },
+  { id: 'credit', label: 'Демо-баланс' },
+] as const;
 
-const mockTransactions: Transaction[] = [
-  {
-    time: '12:42',
-    operation: 'Угадайка · раунд #0042',
-    change: '+1 КУМ',
-    changeColorKey: 'success',
-    status: 'Завершено',
-    category: 'games',
-  },
-  {
-    time: '12:30',
-    operation: 'Блокировка 4 КУМ для продажи · #P42',
-    change: '-4 КУМ',
-    changeColorKey: 'error',
-    status: 'Ждёт сделки',
-    category: 'p2p',
-  },
-  {
-    time: '12:00',
-    operation: 'Начисление игрового баланса',
-    change: '+31 КУМ',
-    changeColorKey: 'success',
-    status: 'Завершено',
-    category: 'games',
-  },
-];
+type Filter = (typeof filters)[number]['id'];
 
-export default function ProfilePage() {
-  const theme = useTheme();
-  const [tabIndex, setTabIndex] = useState(0);
-  const { available, availableDr, reserved } = useSelector((s: RootState) => s.balance);
+export function ProfilePage() {
+  const navigate = useNavigate();
+  const { available, availableDr, reserved } = useSelector((state: RootState) => state.balance);
+  const [filter, setFilter] = useState<Filter>('all');
+  const [loggingOut, setLoggingOut] = useState(false);
+  const nickname = session.getUser()?.nickname ?? 'Игрок';
 
-  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
-    setTabIndex(newValue);
-  };
-
-  const filteredTransactions = mockTransactions.filter((tx) => {
-    if (tabIndex === 1) return tx.category === 'games';
-    if (tabIndex === 2) return tx.category === 'p2p';
-    if (tabIndex === 3) return tx.category === 'credit';
-    return true;
-  });
-
-  const getChangeColor = (key?: string) => {
-    switch (key) {
-      case 'primary':
-        return theme.palette.primary.main;
-      case 'success':
-        return theme.palette.success.main;
-      case 'error':
-        return theme.palette.error.main;
-      default:
-        return theme.palette.text.primary;
+  async function logout() {
+    setLoggingOut(true);
+    try {
+      await session.logout();
+    } catch {
+      // The local session is cleared by session.logout even if the server is unreachable.
+    } finally {
+      navigate('/login', { replace: true });
     }
-  };
+  }
+
+  const selectedFilter = filters.find((item) => item.id === filter)?.label;
 
   return (
     <Shell>
-      <Box
-        sx={{
-          color: 'text.primary',
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          pt: 4,
-          pb: 4,
-        }}
-      >
-        <Container maxWidth="lg">
-          <Box
-            sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}
-          >
-            <Typography color="text.secondary">Аккаунт / Профиль</Typography>
-            <MiniBalance />
-          </Box>
-
-          <Typography variant="h1" sx={{ fontSize: '3rem', mb: 1 }}>
-            Контрагент_42
-          </Typography>
-          <Typography sx={{ color: 'primary.main', fontWeight: 500, mb: 5 }}>
-            Игрок · аккаунт активен
-          </Typography>
-
-          <Grid2 container spacing={2} sx={{ mb: 3 }}>
-            <Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
-              <Box
-                sx={{
-                  bgcolor: 'background.paper',
-                  p: 3,
-                  borderRadius: 2,
-                  border: '1px solid',
-                  borderColor: 'divider',
-                }}
+      <main className="feature-page profile-page">
+        <div className="feature-kicker-row">
+          <p className="feature-breadcrumb">
+            АККАУНТ <span>/</span> ПРОФИЛЬ
+          </p>
+          <MiniBalance />
+        </div>
+        <section className="profile-heading" aria-labelledby="profile-title">
+          <div className="profile-avatar" aria-hidden="true">
+            {nickname.slice(0, 1).toUpperCase()}
+          </div>
+          <div>
+            <p className="feature-eyebrow">ИГРОК · АККАУНТ АКТИВЕН</p>
+            <h1 id="profile-title">{nickname}</h1>
+            <p>Ваш игровой аккаунт Дяхан Exchange</p>
+          </div>
+          <Link className="profile-intro-link" to="/intro">
+            Как устроена биржа? <span aria-hidden="true">↗</span>
+          </Link>
+        </section>
+        <section className="balance-cards" aria-label="Сводка баланса">
+          <article className="balance-card">
+            <span>ДОСТУПНО</span>
+            <strong className="balance-positive">
+              {available} <small>КУМ</small>
+            </strong>
+            <p>Игровой баланс</p>
+          </article>
+          <article className="balance-card">
+            <span>В РЕЗЕРВЕ</span>
+            <strong>
+              {reserved} <small>КУМ</small>
+            </strong>
+            <p>Зарезервировано</p>
+          </article>
+          <article className="balance-card">
+            <span>ДЕМО-БАЛАНС</span>
+            <strong>
+              {availableDr.toLocaleString('ru-RU')} <small>д₽</small>
+            </strong>
+            <p>Демо-рубли</p>
+          </article>
+          <article className="balance-card credit-card">
+            <span>КРЕДИТ</span>
+            <strong>—</strong>
+            <p>Нет данных о кредитных операциях</p>
+          </article>
+        </section>
+        <p className="profile-data-note" role="note">
+          Баланс пока отображает локальное состояние приложения. История и данные кошелька появятся
+          после подключения API кошелька.
+        </p>
+        <section className="transactions-section" aria-labelledby="transactions-title">
+          <div className="feature-section-heading">
+            <div>
+              <p className="feature-eyebrow">ВАША АКТИВНОСТЬ</p>
+              <h2 id="transactions-title">История операций</h2>
+            </div>
+            <span>ПОСЛЕДНИЕ ОПЕРАЦИИ</span>
+          </div>
+          <div className="transaction-filters" role="group" aria-label="Фильтр операций">
+            {filters.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                aria-pressed={filter === item.id}
+                className={filter === item.id ? 'selected' : ''}
+                onClick={() => setFilter(item.id)}
               >
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ display: 'block', mb: 1 }}
-                >
-                  Можно потратить
-                </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 700, color: 'success.main' }}>
-                  {available} КУМ
-                </Typography>
-              </Box>
-            </Grid2>
-
-            <Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
-              <Box
-                sx={{
-                  bgcolor: 'background.paper',
-                  p: 3,
-                  borderRadius: 2,
-                  border: '1px solid',
-                  borderColor: 'divider',
-                }}
-              >
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ display: 'block', mb: 1 }}
-                >
-                  Заблокировано в P2P
-                </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 700, color: 'primary.main' }}>
-                  {reserved} КУМ
-                </Typography>
-              </Box>
-            </Grid2>
-
-            <Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
-              <Box
-                sx={{
-                  bgcolor: 'background.paper',
-                  p: 3,
-                  borderRadius: 2,
-                  border: '1px solid',
-                  borderColor: 'divider',
-                }}
-              >
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ display: 'block', mb: 1 }}
-                >
-                  Демо-рубли
-                </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary' }}>
-                  {availableDr} дР
-                </Typography>
-              </Box>
-            </Grid2>
-
-            <Grid2 size={{ xs: 12, sm: 6, md: 3 }}>
-              <Box
-                sx={{
-                  bgcolor: 'background.paper',
-                  p: 3,
-                  borderRadius: 2,
-                  border: '1px solid',
-                  borderColor: 'divider',
-                }}
-              >
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ display: 'block', mb: 1 }}
-                >
-                  Кредит
-                </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 700, color: 'text.primary' }}>
-                  Нет долга
-                </Typography>
-              </Box>
-            </Grid2>
-          </Grid2>
-
-          <Box
-            sx={{
-              bgcolor: 'background.paper',
-              p: 3,
-              borderRadius: 2,
-              border: '1px solid',
-              borderColor: 'divider',
-              mb: 6,
-            }}
-          >
-            <Typography sx={{ fontWeight: 600, color: 'primary.main', mb: 1 }}>
-              {reserved} КУМ ждут продажи по заявке #P42
-            </Typography>
-            <Typography color="text.secondary">
-              Всего у вас {available + reserved} КУМ: {available} доступны, а {reserved} выставлены
-              на продажу.
-              <br />
-              Отмените заявку — все {available + reserved} КУМ снова доступны. Продадите —{' '}
-              {reserved} КУМ получит покупатель.
-            </Typography>
-          </Box>
-
-          <Typography variant="h5" sx={{ mb: 3 }}>
-            История операций
-          </Typography>
-
-          <Tabs
-            value={tabIndex}
-            onChange={handleTabChange}
-            sx={{
-              borderBottom: '1px solid',
-              borderColor: 'divider',
-              mb: 4,
-              '& .MuiTab-root': {
-                color: 'text.secondary',
-                textTransform: 'none',
-                fontWeight: 500,
-                fontSize: '1rem',
-                '&.Mui-selected': { color: 'text.primary' },
-              },
-              '& .MuiTabs-indicator': { bgcolor: 'primary.main' },
-            }}
-          >
-            <Tab label="Все операции" />
-            <Tab label="Игры" />
-            <Tab label="P2P" />
-            <Tab label="Кредит" />
-          </Tabs>
-
-          <Grid2
-            container
-            sx={{
-              px: 2,
-              pb: 2,
-              borderBottom: '1px solid',
-              borderColor: 'divider',
-              color: 'text.secondary',
-              fontSize: '0.85rem',
-            }}
-          >
-            <Grid2 size={2}>ВРЕМЯ</Grid2>
-            <Grid2 size={6}>ОПЕРАЦИЯ</Grid2>
-            <Grid2 size={2}>Изменение доступного</Grid2>
-            <Grid2 size={2} sx={{ textAlign: 'right' }}>
-              СТАТУС
-            </Grid2>
-          </Grid2>
-
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            {filteredTransactions.map((tx, idx) => (
-              <Grid2
-                key={idx}
-                container
-                alignItems="center"
-                sx={{
-                  px: 2,
-                  py: 2.5,
-                  borderBottom: '1px solid',
-                  borderColor: 'divider',
-                  fontSize: '0.95rem',
-                }}
-              >
-                <Grid2 size={2} sx={{ color: 'text.secondary' }}>
-                  {tx.time}
-                </Grid2>
-                <Grid2 size={6} sx={{ fontWeight: 500 }}>
-                  {tx.operation}
-                </Grid2>
-                <Grid2 size={2} sx={{ color: getChangeColor(tx.changeColorKey), fontWeight: 600 }}>
-                  {tx.change}
-                </Grid2>
-                <Grid2 size={2} sx={{ textAlign: 'right', color: 'text.secondary' }}>
-                  {tx.status}
-                </Grid2>
-              </Grid2>
+                {item.label}
+              </button>
             ))}
-          </Box>
-
-          <Box sx={{ mt: 5 }}>
-            <Link
-              component={RouterLink}
-              to="/login"
-              underline="none"
-              sx={{
-                color: 'primary.main',
-                fontWeight: 600,
-                fontSize: '0.95rem',
-                '&:hover': { opacity: 0.8 },
-              }}
-            >
-              Выйти из аккаунта →
+          </div>
+          <div className="transactions-empty" role="status">
+            <span aria-hidden="true">↗</span>
+            <h3>Операций пока нет</h3>
+            <p>
+              {filter === 'all'
+                ? 'Когда появятся операции, здесь будет их история.'
+                : `В разделе «${selectedFilter}» пока нет операций.`}
+            </p>
+            <Link to="/guess" className="feature-button secondary">
+              Перейти к угадайке <span aria-hidden="true">↗</span>
             </Link>
-          </Box>
-        </Container>
-
-        <Container maxWidth="lg">
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ borderTop: '1px solid', borderColor: 'divider', pt: 2, display: 'block', mt: 4 }}
-          >
-            Учебный проект. КУМ и дР — игровые единицы. Реальных платежей нет.
-          </Typography>
-        </Container>
-      </Box>
+          </div>
+        </section>
+        <div className="profile-bottom">
+          <Link to="/market">← Вернуться на рынок</Link>
+          <button type="button" onClick={logout} disabled={loggingOut}>
+            {loggingOut ? 'Выходим…' : 'Выйти из аккаунта'}
+          </button>
+        </div>
+      </main>
     </Shell>
   );
 }
+
+export default ProfilePage;

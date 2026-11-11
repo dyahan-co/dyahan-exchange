@@ -11,8 +11,7 @@ describe('App routes', () => {
         <MemoryRouter initialEntries={['/']}>
           <App />
         </MemoryRouter>
-      </Provider>
-
+      </Provider>,
     );
 
     expect(screen.getByRole('heading', { name: /Рынок КУМcoin/ })).toBeInTheDocument();
@@ -24,12 +23,11 @@ describe('App routes', () => {
 
   it('renders the player market at the market route', () => {
     render(
-
       <Provider store={makeStore()}>
         <MemoryRouter initialEntries={['/market']}>
           <App />
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
 
     expect(screen.getByRole('heading', { name: /Рынок КУМcoin/ })).toBeInTheDocument();

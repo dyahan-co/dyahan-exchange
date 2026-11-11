@@ -1,6 +1,7 @@
 import React from 'react';
-import { Box, Typography, SxProps, Theme } from '@mui/material';
+import { Box, Typography, type SxProps, type Theme } from '@mui/material';
 import { useSelector } from 'react-redux';
+import { session } from '../auth/session';
 import type { RootState } from '../store';
 
 interface MiniBalanceProps {
@@ -11,16 +12,13 @@ interface MiniBalanceProps {
 
 export function MiniBalance({ sx }: MiniBalanceProps) {
   const { available, availableDr } = useSelector((s: RootState) => s.balance);
-  let content;
-  const isLoggedIn = true; // Пока что всегда true
-  if (isLoggedIn) {
-    content = (
+  const user = session.getUser();
+
+  return (
+    <Box className="mini-balance" sx={sx} aria-label="Баланс игрока">
       <Typography color="text.secondary">
-        {available} КУМ / {availableDr} дР
+        {user ? `${available} КУМ / ${availableDr} д₽` : 'Гостевой доступ'}
       </Typography>
-    );
-  } else {
-    content = <Typography color="text.secondary">Гостевой доступ</Typography>;
-  }
-  return <Box sx={{ ...sx }}>{content}</Box>;
+    </Box>
+  );
 }

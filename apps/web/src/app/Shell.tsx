@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import logo from '../assets/logo.png';
+import { session } from '../auth/session';
 
 const disclaimer = 'Учебный проект. КУМ и д₽ — игровые единицы. Реальных платежей нет.';
 
@@ -12,6 +13,7 @@ export function Shell({ children }: { children: ReactNode }) {
     pathname === '/profile' ||
     pathname === '/intro' ||
     pathname.startsWith('/guess');
+  const nickname = session.getUser()?.nickname ?? 'Профиль';
   return (
     <div className={`prototype-shell ${market ? 'market-shell' : 'account-shell'}`}>
       <div className="design-frame shell-frame">
@@ -37,7 +39,8 @@ export function Shell({ children }: { children: ReactNode }) {
           >
             {player ? (
               <>
-                <span className="player-avatar">К</span>Контрагент_42 <small>⌄</small>
+                <span className="player-avatar">{nickname.slice(0, 1).toUpperCase()}</span>
+                {nickname} <small>⌄</small>
               </>
             ) : (
               'Войти / регистрация'

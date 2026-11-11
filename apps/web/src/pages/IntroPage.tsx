@@ -1,163 +1,87 @@
-import React from 'react';
-import { Box, Container, Typography, Button } from '@mui/material';
-import Grid2 from '@mui/material/Grid2';
-import { Link as RouterLink } from 'react-router-dom';
-import { ActionButton } from '../components/ActionButton';
-import { MiniBalance } from '../components/MiniBalance';
-import chips from '../assets/chips.png';
+import { Link } from 'react-router-dom';
 import { Shell } from '../app/Shell';
+import { MiniBalance } from '../components/MiniBalance';
+import './feature-pages.css';
 
-export default function IntroPage() {
+const steps = [
+  {
+    number: '01',
+    title: 'Посмотрите на картинку',
+    description: 'В каждом раунде — новый сюжет и ограниченное время на ответ.',
+  },
+  {
+    number: '02',
+    title: 'Отправьте свой вариант',
+    description: 'Можно ответить своими словами. Раунд закрывается после первой попытки.',
+  },
+  {
+    number: '03',
+    title: 'Получите награду',
+    description: 'За верный ответ начисляется 1 КУМ — игровая единица проекта.',
+  },
+];
+
+export function IntroPage() {
   return (
     <Shell>
-      <Box
-        sx={{
-          color: 'text.primary',
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          pt: 4,
-          pb: 4,
-        }}
-      >
-        <Container maxWidth="lg">
-          <Box
-            sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}
-          >
-            <Typography color="text.secondary">Аккаунт / Первое знакомство</Typography>
-            <MiniBalance />
-          </Box>
-
-          <Typography variant="h1" sx={{ fontSize: '3rem', mb: 2 }}>
-            Добро пожаловать
-          </Typography>
-
-          <Typography color="text.secondary" sx={{ mb: 6 }}>
-            Сначала попробуйте угадайку. Она бесплатная — даже при нулевом балансе.
-          </Typography>
-
-          <Grid2 container spacing={8} alignItems="center">
-            <Grid2 size={{ xs: 12, md: 6 }}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, mb: 6 }}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    gap: 3,
-                    alignItems: 'flex-start',
-                    borderBottom: '1px solid',
-                    borderColor: 'divider',
-                    pb: 3,
-                  }}
-                >
-                  <Typography color="text.secondary" sx={{ minWidth: '24px', pt: 0.5 }}>
-                    01
-                  </Typography>
-                  <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
-                      Посмотрите картинку
-                    </Typography>
-                    <Typography color="text.secondary">
-                      Назовите, что на ней происходит. На ответ — 60 секунд.
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <Box
-                  sx={{
-                    display: 'flex',
-                    gap: 3,
-                    alignItems: 'flex-start',
-                    borderBottom: '1px solid',
-                    borderColor: 'divider',
-                    pb: 3,
-                  }}
-                >
-                  <Typography color="text.secondary" sx={{ minWidth: '24px', pt: 0.5 }}>
-                    02
-                  </Typography>
-                  <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
-                      Отправьте один ответ
-                    </Typography>
-                    <Typography color="text.secondary">
-                      Сервер проверит название и близкие формулировки.
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <Box sx={{ display: 'flex', gap: 3, alignItems: 'flex-start' }}>
-                  <Typography color="text.secondary" sx={{ minWidth: '24px', pt: 0.5 }}>
-                    03
-                  </Typography>
-                  <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
-                      Получите +1 КУМ
-                    </Typography>
-                    <Typography color="text.secondary">
-                      Потратьте игровую валюту на дуэль, рулетку или P2P.
-                    </Typography>
-                  </Box>
-                </Box>
-              </Box>
-
-              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                <Box sx={{ flex: 1, minWidth: '200px' }}>
-                  <ActionButton component={RouterLink} to="/guess">
-                    Начать угадайку
-                  </ActionButton>
-                </Box>
-                <Box sx={{ flex: 1, minWidth: '200px' }}>
-                  <Button
-                    component={RouterLink}
-                    to="/market"
-                    fullWidth
-                    variant="outlined"
-                    size="large"
-                    sx={{
-                      borderColor: 'divider',
-                      color: 'text.primary',
-                      py: 1.5,
-                      fontWeight: 600,
-                      '&:hover': {
-                        borderColor: 'primary.main',
-                        bgcolor: 'transparent',
-                      },
-                    }}
-                  >
-                    Перейти в терминал
-                  </Button>
-                </Box>
-              </Box>
-            </Grid2>
-
-            <Grid2 size={{ xs: 12, md: 6 }}>
-              <Box
-                component="img"
-                src={chips}
-                alt="Dyahan Exchange Casino Chips Stack"
-                sx={{
-                  width: '100%',
-                  maxWidth: '480px',
-                  display: 'block',
-                  mx: 'auto',
-                  objectFit: 'contain',
-                }}
-              />
-            </Grid2>
-          </Grid2>
-        </Container>
-
-        <Container maxWidth="lg">
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ borderTop: '1px solid', borderColor: 'divider', pt: 2, display: 'block', mt: 4 }}
-          >
-            Учебный проект. КУМ и дР — игровые единицы. Реальных платежей нет.
-          </Typography>
-        </Container>
-      </Box>
+      <main className="feature-page intro-page">
+        <div className="feature-kicker-row">
+          <p className="feature-breadcrumb">
+            АККАУНТ <span>/</span> ПЕРВОЕ ЗНАКОМСТВО
+          </p>
+          <MiniBalance />
+        </div>
+        <section className="intro-hero">
+          <div className="intro-copy">
+            <p className="feature-eyebrow">ВАШ ПЕРВЫЙ ШАГ</p>
+            <h1>
+              Добро пожаловать
+              <br />
+              на биржу Дяхана<span>.</span>
+            </h1>
+            <p className="feature-lead">
+              Начните с бесплатной угадайки, познакомьтесь с игровыми КУМ и посмотрите, как устроен
+              рынок. Никаких реальных платежей — только учебные сценарии.
+            </p>
+            <div className="feature-actions">
+              <Link className="feature-button primary" to="/guess">
+                Начать угадайку <span aria-hidden="true">↗</span>
+              </Link>
+              <Link className="feature-button secondary" to="/market">
+                Открыть рынок
+              </Link>
+            </div>
+          </div>
+          <div className="intro-art" aria-label="Три шага для знакомства с игрой">
+            <div className="art-orbit orbit-one" />
+            <div className="art-orbit orbit-two" />
+            <div className="art-coin">КУМ</div>
+            <span className="art-label label-top">01 · УГАДАЙ</span>
+            <span className="art-label label-right">02 · ОТВЕТЬ</span>
+            <span className="art-label label-bottom">03 · ПОЛУЧИ НАГРАДУ</span>
+          </div>
+        </section>
+        <section className="intro-steps" aria-labelledby="intro-steps-title">
+          <div className="feature-section-heading">
+            <div>
+              <p className="feature-eyebrow">БЫСТРЫЙ СТАРТ</p>
+              <h2 id="intro-steps-title">Три шага — и вы в игре</h2>
+            </div>
+            <span>БЕЗ СТАВОК И РИСКА</span>
+          </div>
+          <div className="intro-step-grid">
+            {steps.map((step) => (
+              <article className="intro-step" key={step.number}>
+                <span className="step-number">{step.number}</span>
+                <h3>{step.title}</h3>
+                <p>{step.description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      </main>
     </Shell>
   );
 }
+
+export default IntroPage;
