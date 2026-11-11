@@ -50,9 +50,7 @@ export function LoginForm() {
       navigate('/guess', { replace: true });
     } catch (error) {
       setMessage(
-        error instanceof ApiError
-          ? error.message
-          : 'Не удалось войти. Попробуйте ещё раз.',
+        error instanceof ApiError ? error.message : 'Не удалось войти. Попробуйте ещё раз.',
       );
     } finally {
       setSubmitting(false);

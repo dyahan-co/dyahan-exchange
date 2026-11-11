@@ -8,10 +8,7 @@ import {
   Res,
 } from '@nestjs/common';
 import type { Response } from 'express';
-import {
-  CoreApiResult,
-  CoreApiService,
-} from './core-api.service.js';
+import { CoreApiResult, CoreApiService } from './core-api.service.js';
 
 @Controller('api/v1')
 export class CoreApiController {
@@ -33,10 +30,7 @@ export class CoreApiController {
   }
 
   @Post('auth/login')
-  async login(
-    @Body() body: unknown,
-    @Res() response: Response,
-  ): Promise<void> {
+  async login(@Body() body: unknown, @Res() response: Response): Promise<void> {
     const result = await this.coreApiService.forward(
       '/api/v1/auth/login',
       'POST',

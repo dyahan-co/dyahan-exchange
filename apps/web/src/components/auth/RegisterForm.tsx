@@ -3,11 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ApiError } from '../../api/dyahanApi';
 import { session } from '../../auth/session';
 
-export function RegisterForm({
-  onNickname,
-}: {
-  onNickname?: (nickname: string) => void;
-}) {
+export function RegisterForm({ onNickname }: { onNickname?: (nickname: string) => void }) {
   const navigate = useNavigate();
   const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
@@ -16,11 +12,7 @@ export function RegisterForm({
   const [show, setShow] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const rules = [
-    password.length >= 8,
-    /[A-ZА-Я]/.test(password),
-    /[0-9]/.test(password),
-  ];
+  const rules = [password.length >= 8, /[A-ZА-Я]/.test(password), /[0-9]/.test(password)];
   const strength = password.length ? rules.filter(Boolean).length : 0;
   const label = ['Добавь пароль', 'Слабый', 'Неплохой', 'Надёжный'][strength];
 
@@ -107,10 +99,7 @@ export function RegisterForm({
         </div>
         <div className="strength-bars">
           {[1, 2, 3].map((number) => (
-            <i
-              key={number}
-              className={number <= strength ? `filled strength-${strength}` : ''}
-            />
+            <i key={number} className={number <= strength ? `filled strength-${strength}` : ''} />
           ))}
         </div>
         <div className="password-rules">
