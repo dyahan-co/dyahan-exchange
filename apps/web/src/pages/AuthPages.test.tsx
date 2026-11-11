@@ -47,6 +47,7 @@ beforeEach(() => {
   vi.mocked(session.restore).mockResolvedValue(mockUser);
   vi.mocked(session.getUser).mockReturnValue(mockUser);
   vi.mocked(session.login).mockResolvedValue(mockUser);
+  vi.mocked(session.getToken).mockReturnValue(null);
 });
 
 describe('LoginPage and LoginForm', () => {
