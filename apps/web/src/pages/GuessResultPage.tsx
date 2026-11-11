@@ -1,22 +1,22 @@
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import type { GuessRound, GuessSubmissionResult } from '../api/dyahanApi';
 import { Shell } from '../app/Shell';
 
-type RoundStatus = 'demo' | 'correct' | 'incorrect' | 'expired' | 'unavailable';
-
-function readStatus(value: string | null): RoundStatus {
-  if (value === 'demo' || value === 'correct' || value === 'incorrect' || value === 'expired') {
-    return value;
-  }
-  return 'unavailable';
+interface GuessResultState {
+  round?: GuessRound;
+  answer?: string;
+  result?: GuessSubmissionResult | null;
 }
 
 export function GuessResultPage() {
+  const location = useLocation();
   const [params] = useSearchParams();
-  const status = readStatus(params.get('status'));
-  const submittedAnswer = params.get('answer')?.slice(0, 500) ?? '';
-  const expired = status === 'expired';
-  const settled = status === 'correct' || status === 'incorrect';
-  const correct = status === 'correct';
+  const state = (location.state ?? {}) as GuessResultState;
+  const { round, answer = '', result } = state;
+
+  const expired = params.get('status') === 'expired' || result?.status === 'EXPIRED';
+  const correct = result?.correct === true;
+  const hasResult = result != null;
 
   return (
     <Shell>
@@ -25,88 +25,69 @@ export function GuessResultPage() {
           <span>
             Игры <b>/</b> Слоп-угадайка
           </span>
-          <span>28 КУМ / 1 200 д₽</span>
+          <span>{expired ? 'Раунд истёк' : 'Результат раунда'}</span>
         </div>
 
         <h1>
           Раунд завершён<span className="accent-dot">.</span>
         </h1>
+
         <div className="guess-result-meta">
-          <span>Раунд #0042</span>
-          <span>
-            {expired ? 'Время вышло' : settled ? 'Ответ закрыт' : 'Ожидает проверки сервером'}
-          </span>
+          <span>Раунд {round ? `#${round.roundId}` : ''}</span>
+          <span>{expired ? 'Время вышло' : hasResult ? 'Ответ проверен сервером' : ''}</span>
         </div>
 
         <section className="guess-result-layout">
-          <figure className="guess-art">
-            <div
-              className="guess-art-image"
-              role="img"
-              aria-label="Иллюстрация раунда: Дяхан и КУМ на фоне биржевого графика"
-            >
-              <div className="guess-art-coin">К</div>
-              <div className="guess-art-brand">
-                ДЯХАН
-                <br />
-                <span>Exchange</span>
-              </div>
-            </div>
-            <figcaption>
-              Условная картинка для макета. В продукте — подготовленный нейрослоп.
-            </figcaption>
-          </figure>
+          {round && (
+            <figure className="guess-art">
+              <img
+                className="guess-art-image"
+                src={round.imageUrl}
+                alt="Картинка раунда угадайки"
+              />
+              <figcaption>Изображение раунда</figcaption>
+            </figure>
+          )}
 
           <div className={`guess-settlement ${correct ? 'is-correct' : ''}`}>
             <h2>
               {correct
                 ? 'Ответ засчитан'
                 : expired
-                  ? 'Раунд завершён'
-                  : settled
+                  ? 'Время вышло'
+                  : hasResult
                     ? 'Ответ не совпал'
-                    : status === 'demo'
-                      ? 'Ответ отправлен'
-                      : 'Результат появится после проверки'}
+                    : 'Результат недоступен'}
             </h2>
 
-            {settled ? (
+            {answer && (
+              <p className="submitted-answer">
+                <span>Ваш ответ</span>
+                <b>{answer}</b>
+              </p>
+            )}
+
+            {hasResult ? (
               <>
                 <p>
                   {correct
-                    ? 'Верное название: «Кот в космосе».'
-                    : 'Попробуйте сформулировать ответ иначе в следующем раунде.'}
+                    ? 'Сервер подтвердил правильный ответ.'
+                    : expired
+                      ? 'Время на ответ закончилось.'
+                      : 'Сервер проверил ответ. Попробуйте ещё раз в следующем раунде.'}
                 </p>
-                <strong className="guess-reward">{correct ? '+1 КУМ' : '0 КУМ'}</strong>
-                <dl className="guess-balance-diff">
-                  <div>
-                    <dt>Баланс до</dt>
-                    <dd>28 КУМ</dd>
-                  </div>
-                  <div>
-                    <dt>Баланс после</dt>
-                    <dd>{correct ? '29 КУМ' : '28 КУМ'}</dd>
-                  </div>
-                </dl>
+                <strong className="guess-reward">
+                  {correct ? `+${result.score} КУМ` : '0 КУМ'}
+                </strong>
               </>
             ) : (
               <>
-                {submittedAnswer && (
-                  <p className="submitted-answer">
-                    <span>Ваш ответ</span>
-                    <b>{submittedAnswer}</b>
-                  </p>
-                )}
                 <p>
                   {expired
-                    ? 'Не успели отправить ответ. Баланс не изменился.'
-                    : status === 'demo'
-                      ? 'Это локальный демо-режим. Проверка ответа и начисление награды появятся после подключения API.'
-                      : 'Откройте раунд и отправьте ответ, чтобы получить результат.'}
+                    ? 'Раунд завершился по таймеру. Награда за этот раунд не начислена.'
+                    : 'Данные раунда не найдены. Вернитесь и запустите новый раунд.'}
                 </p>
-                <strong className="guess-reward pending">
-                  {expired ? '0 КУМ' : 'Проверка на сервере'}
-                </strong>
+                <strong className="guess-reward pending">0 КУМ</strong>
               </>
             )}
 
@@ -118,11 +99,6 @@ export function GuessResultPage() {
                 Рынок
               </Link>
             </div>
-            {!settled && (
-              <small className="demo-note">
-                БАЛАНС НЕ ИЗМЕНЁН · ИТОГОВЫЕ ДАННЫЕ ПРИХОДЯТ ОТ СЕРВЕРА
-              </small>
-            )}
           </div>
         </section>
       </main>
