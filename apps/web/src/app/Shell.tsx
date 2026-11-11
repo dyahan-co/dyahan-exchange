@@ -3,8 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import { session, type SessionUser } from '../auth/session';
 
-const disclaimer =
-  'Учебный проект. КУМ и д₽ — игровые единицы. Реальных платежей нет.';
+const disclaimer = 'Учебный проект. КУМ и д₽ — игровые единицы. Реальных платежей нет.';
 
 function readUser(): SessionUser | null {
   return session.getToken() ? session.getUser() : null;
@@ -15,8 +14,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<SessionUser | null>(readUser);
 
   const market = pathname === '/' || pathname === '/market';
-  const games =
-    pathname.startsWith('/guess') || pathname.startsWith('/roulette');
+  const games = pathname.startsWith('/guess') || pathname.startsWith('/roulette');
 
   useEffect(() => {
     function updateUser() {
@@ -34,21 +32,13 @@ export function Shell({ children }: { children: ReactNode }) {
   }, [pathname]);
 
   const marketPath = user ? '/market' : '/';
-  const avatar = user
-    ? Array.from(user.nickname.trim())[0]?.toLocaleUpperCase('ru-RU') || 'И'
-    : '';
+  const avatar = user ? Array.from(user.nickname.trim())[0]?.toLocaleUpperCase('ru-RU') || 'И' : '';
 
   return (
-    <div
-      className={`prototype-shell ${market ? 'market-shell' : 'account-shell'}`}
-    >
+    <div className={`prototype-shell ${market ? 'market-shell' : 'account-shell'}`}>
       <div className="design-frame shell-frame">
         <header className="site-header">
-          <Link
-            to={marketPath}
-            className="brand"
-            aria-label="Дяхан Exchange — рынок"
-          >
+          <Link to={marketPath} className="brand" aria-label="Дяхан Exchange — рынок">
             <img className="brand-logo" src={logo} alt="" />
             <span>Дяхан</span>
             <small>Exchange</small>
@@ -58,10 +48,7 @@ export function Shell({ children }: { children: ReactNode }) {
             <Link className={market ? 'active' : ''} to={marketPath}>
               Рынок
             </Link>
-            <Link
-              className={games ? 'active' : ''}
-              to={`${marketPath}#games`}
-            >
+            <Link className={games ? 'active' : ''} to={`${marketPath}#games`}>
               Игры
             </Link>
             <Link to="/market#p2p">P2P</Link>

@@ -6,17 +6,29 @@ export interface BalanceState {
   reserved: number;
 }
 
-const initialState: BalanceState = { available: 0, availableDr: 0, reserved: 0 };
+export interface BalanceUpdate {
+  available: number;
+  reserved: number;
+  availableDr?: number;
+}
+
+const initialState: BalanceState = {
+  available: 0,
+  availableDr: 0,
+  reserved: 0,
+};
 
 const balanceSlice = createSlice({
   name: 'balance',
   initialState,
   reducers: {
-    // Сервер — источник истины: клиент лишь принимает авторитетное значение.
-    balanceChanged(state, action: PayloadAction<BalanceState>) {
+    balanceChanged(state, action: PayloadAction<BalanceUpdate>) {
       state.available = action.payload.available;
-      state.availableDr = action.payload.availableDr;
       state.reserved = action.payload.reserved;
+
+      if (action.payload.availableDr !== undefined) {
+        state.availableDr = action.payload.availableDr;
+      }
     },
   },
 });

@@ -74,11 +74,7 @@ function requireToken(): string {
   const token = session.getToken();
 
   if (!token) {
-    throw new ApiError(
-      401,
-      'Для игры войдите в свой аккаунт.',
-      'UNAUTHORIZED',
-    );
+    throw new ApiError(401, 'Для игры войдите в свой аккаунт.', 'UNAUTHORIZED');
   }
 
   return token;
@@ -209,10 +205,7 @@ function mapRound(round: RoundResponse): PendingRound | SettledRound {
   };
 }
 
-async function makeSnapshot(
-  token: string,
-  round: RoundResponse | null,
-): Promise<Snapshot> {
+async function makeSnapshot(token: string, round: RoundResponse | null): Promise<Snapshot> {
   const wallet = await request<WalletResponse>('/wallet', token);
 
   if (!wallet || wallet.currency !== 'KUM') {
@@ -231,10 +224,7 @@ async function makeSnapshot(
 export async function syncRoulette(): Promise<Snapshot> {
   const token = requireToken();
 
-  const round = await request<RoundResponse>(
-    '/roulette-rounds/active',
-    token,
-  );
+  const round = await request<RoundResponse>('/roulette-rounds/active', token);
 
   return makeSnapshot(token, round);
 }
@@ -242,12 +232,7 @@ export async function syncRoulette(): Promise<Snapshot> {
 export async function startRound(key: string): Promise<Snapshot> {
   const token = requireToken();
 
-  const round = await request<RoundResponse>(
-    '/roulette-rounds',
-    token,
-    'POST',
-    key,
-  );
+  const round = await request<RoundResponse>('/roulette-rounds', token, 'POST', key);
 
   if (!round) {
     throw new Error('Сервер не вернул созданный раунд.');

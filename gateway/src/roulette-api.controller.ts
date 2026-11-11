@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  Headers,
-  Param,
-  Post,
-  Res,
-} from '@nestjs/common';
+import { Controller, Get, Headers, Param, Post, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { CoreApiService } from './core-api.service.js';
 import type { CoreApiResult } from './core-api.service.js';

@@ -7,14 +7,7 @@ import { RouletteApiController } from './roulette-api.controller.js';
 
 @Module({
   imports: [],
-  controllers: [
-    AppController,
-    CoreApiController,
-    RouletteApiController,
-  ],
-  providers: [
-    AppService,
-    CoreApiService,
-  ],
+  controllers: [AppController, CoreApiController, RouletteApiController],
+  providers: [AppService, CoreApiService],
 })
 export class AppModule {}

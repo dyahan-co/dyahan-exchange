@@ -1,9 +1,12 @@
-dist
-coverage
-node_modules
-package-lock.json
-playwright-report
-test-results
+**/dist/**
+**/build/**
+**/.gradle/**
+**/coverage/**
+**/node_modules/**
+**/playwright-report/**
+**/test-results/**
+**/package-lock.json
+*.tsbuildinfo
 *.pptx
 
 data-flow.md

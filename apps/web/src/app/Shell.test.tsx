@@ -12,10 +12,7 @@ afterEach(() => {
 });
 
 function saveSession() {
-  window.localStorage.setItem(
-    'dyahan.sessionToken',
-    'test-session-token',
-  );
+  window.localStorage.setItem('dyahan.sessionToken', 'test-session-token');
 
   window.localStorage.setItem(
     'dyahan.sessionUser',
@@ -36,9 +33,10 @@ describe('Shell', () => {
       </MemoryRouter>,
     );
 
-    expect(
-      screen.getByRole('link', { name: 'Войти / регистрация' }),
-    ).toHaveAttribute('href', '/login');
+    expect(screen.getByRole('link', { name: 'Войти / регистрация' })).toHaveAttribute(
+      'href',
+      '/login',
+    );
 
     expect(screen.getByText('Market content')).toBeInTheDocument();
     expect(screen.getByText(/Реальных платежей нет/)).toBeInTheDocument();
@@ -55,17 +53,14 @@ describe('Shell', () => {
         </MemoryRouter>,
       );
 
-      expect(
-        screen.getByRole('link', { name: /Контрагент_42/ }),
-      ).toHaveAttribute('href', '/profile');
+      expect(screen.getByRole('link', { name: /Контрагент_42/ })).toHaveAttribute(
+        'href',
+        '/profile',
+      );
 
-      expect(
-        screen.getByRole('link', { name: 'Рынок' }),
-      ).toHaveAttribute('href', '/market');
+      expect(screen.getByRole('link', { name: 'Рынок' })).toHaveAttribute('href', '/market');
 
-      expect(
-        screen.queryByRole('link', { name: 'Войти / регистрация' }),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Войти / регистрация' })).not.toBeInTheDocument();
     },
   );
 
@@ -79,13 +74,12 @@ describe('Shell', () => {
       </MemoryRouter>,
     );
 
-    expect(
-      screen.getByRole('link', { name: 'Войти / регистрация' }),
-    ).toHaveAttribute('href', '/login');
+    expect(screen.getByRole('link', { name: 'Войти / регистрация' })).toHaveAttribute(
+      'href',
+      '/login',
+    );
 
-    expect(
-      screen.queryByRole('link', { name: /Контрагент_42/ }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /Контрагент_42/ })).not.toBeInTheDocument();
   });
 
   it('uses guest navigation on the login route without a session', () => {
@@ -95,12 +89,8 @@ describe('Shell', () => {
       </MemoryRouter>,
     );
 
-    expect(
-      screen.getByRole('link', { name: 'Рынок' }),
-    ).toHaveAttribute('href', '/');
+    expect(screen.getByRole('link', { name: 'Рынок' })).toHaveAttribute('href', '/');
 
-    expect(
-      screen.getByRole('link', { name: 'Войти / регистрация' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Войти / регистрация' })).toBeInTheDocument();
   });
 });

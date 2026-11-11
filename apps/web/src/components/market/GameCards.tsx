@@ -60,10 +60,7 @@ export function GameCards() {
           <div>
             <span className="eyebrow">МИНИ-РАУНД · ДЕМО</span>
             <h3>Что происходит на картинке?</h3>
-            <p>
-              Дяхан заметил, что рынок снова пошёл вверх.
-              Как он реагирует?
-            </p>
+            <p>Дяхан заметил, что рынок снова пошёл вверх. Как он реагирует?</p>
           </div>
 
           <div className="preview-actions">
@@ -71,11 +68,7 @@ export function GameCards() {
               Паникует
             </button>
 
-            <button
-              type="button"
-              className="correct-answer"
-              onClick={() => setPreview(false)}
-            >
+            <button type="button" className="correct-answer" onClick={() => setPreview(false)}>
               Покупает ещё КУМ <b>+1 КУМ</b>
             </button>
 
@@ -84,9 +77,7 @@ export function GameCards() {
             </button>
           </div>
 
-          <small>
-            Демо-вопрос. Серверная проверка будет подключена отдельно.
-          </small>
+          <small>Демо-вопрос. Серверная проверка будет подключена отдельно.</small>
         </div>
       )}
     </section>
