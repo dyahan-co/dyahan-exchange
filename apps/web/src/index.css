@@ -1647,6 +1647,88 @@ body {
     sans-serif;
 }
 
+/* OHLC market candles: each bar is positioned by its actual demo price range. */
+.market-positive { color: var(--green) !important; }
+.market-negative { color: #ff626a !important; }
+.chart-plot { padding-right: 52px; }
+.grid-lines {
+  position: absolute;
+  inset: 0 0 72px 8px;
+  height: auto;
+}
+.grid-lines span {
+  display: block;
+  flex: 1;
+  width: calc(100% - 52px);
+  height: 0;
+  border-top: 1px solid rgb(255 255 255 / 8%);
+  font: 10px Arial, sans-serif;
+  position: relative;
+}
+.grid-lines span b { position: absolute; top: -6px; right: -49px; color: var(--muted); font-weight: 400; }
+.grid-lines span::after { content: none !important; }
+.grid-lines span { overflow: visible; }
+.grid-lines span:not(:first-child) { border-color: rgb(255 255 255 / 8%); }
+.candles {
+  inset: 0 52px 72px 8px;
+  display: block;
+  overflow: hidden;
+}
+.candles i {
+  position: absolute;
+  display: block;
+  min-width: 2px;
+  background: transparent;
+  box-shadow: none;
+  transition: top 0.7s ease, height 0.7s ease;
+}
+.candles i::before {
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 100%;
+  transform: translateX(-50%);
+  background: currentcolor;
+}
+.candles i > b {
+  position: absolute;
+  left: 0;
+  right: 0;
+  min-height: 2px;
+  border: 1px solid currentcolor;
+  background: currentcolor;
+  box-shadow: 0 0 8px color-mix(in srgb, currentcolor 25%, transparent);
+}
+.candles .up { color: #a8e65a; }
+.candles .down { color: #f05a63; }
+.volume-bars {
+  position: absolute;
+  inset: auto 52px 25px 8px;
+  height: 42px;
+  border-top: 1px solid rgb(255 255 255 / 12%);
+}
+.volume-bars i {
+  position: absolute;
+  bottom: 0;
+  min-width: 2px;
+  opacity: 0.38;
+}
+.volume-bars .up { background: #a8e65a; }
+.volume-bars .down { background: #f05a63; }
+.time-labels { right: 52px; }
+.chart-tooltip { max-width: 180px; }
+
+@media (max-width: 600px) {
+  .chart-plot { padding-right: 43px; }
+  .grid-lines { right: 43px; }
+  .candles { right: 43px; }
+  .grid-lines span { width: calc(100% - 43px); }
+  .grid-lines span b { right: -41px; }
+  .volume-bars { right: 43px; }
+  .time-labels { right: 43px; }
+  .candles i { width: auto; }
+}
+
 .event-heading {
   display: flex;
   justify-content: space-between;
