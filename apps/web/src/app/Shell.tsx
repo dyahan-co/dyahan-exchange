@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import logo from '../assets/logo.png';
 import { session, type SessionUser } from '../auth/session';
 
 const disclaimer =
@@ -15,8 +16,7 @@ export function Shell({ children }: { children: ReactNode }) {
 
   const market = pathname === '/' || pathname === '/market';
   const games =
-    pathname.startsWith('/guess') ||
-    pathname.startsWith('/roulette');
+    pathname.startsWith('/guess') || pathname.startsWith('/roulette');
 
   useEffect(() => {
     function updateUser() {
@@ -24,8 +24,6 @@ export function Shell({ children }: { children: ReactNode }) {
     }
 
     updateUser();
-
-    // Изменение сессии в другой вкладке или возвращение в приложение.
     window.addEventListener('storage', updateUser);
     window.addEventListener('focus', updateUser);
 
@@ -42,9 +40,7 @@ export function Shell({ children }: { children: ReactNode }) {
 
   return (
     <div
-      className={`prototype-shell ${
-        market ? 'market-shell' : 'account-shell'
-      }`}
+      className={`prototype-shell ${market ? 'market-shell' : 'account-shell'}`}
     >
       <div className="design-frame shell-frame">
         <header className="site-header">
@@ -53,25 +49,21 @@ export function Shell({ children }: { children: ReactNode }) {
             className="brand"
             aria-label="Дяхан Exchange — рынок"
           >
+            <img className="brand-logo" src={logo} alt="" />
             <span>Дяхан</span>
             <small>Exchange</small>
           </Link>
 
           <nav aria-label="Основная навигация">
-            <Link
-              className={market ? 'active' : ''}
-              to={marketPath}
-            >
+            <Link className={market ? 'active' : ''} to={marketPath}>
               Рынок
             </Link>
-
             <Link
               className={games ? 'active' : ''}
               to={`${marketPath}#games`}
             >
               Игры
             </Link>
-
             <Link to="/market#p2p">P2P</Link>
             <Link to="/market#chat">Чат</Link>
             <Link to="/market#bank">Банк</Link>
@@ -79,16 +71,16 @@ export function Shell({ children }: { children: ReactNode }) {
           </nav>
 
           {user ? (
-            <span
+            <Link
               className="account-link player-account"
+              to="/profile"
               title={`Вы вошли как ${user.nickname}`}
             >
               <span className="player-avatar" aria-hidden="true">
                 {avatar}
               </span>
-
-              {user.nickname}
-            </span>
+              {user.nickname} <small>⌄</small>
+            </Link>
           ) : (
             <Link className="account-link" to="/login">
               Войти / регистрация
@@ -100,9 +92,7 @@ export function Shell({ children }: { children: ReactNode }) {
           {children}
         </div>
 
-        <footer className="site-footer">
-          {disclaimer}
-        </footer>
+        <footer className="site-footer">{disclaimer}</footer>
       </div>
     </div>
   );

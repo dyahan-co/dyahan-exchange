@@ -11,6 +11,7 @@ import java.time.OffsetDateTime;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -18,17 +19,16 @@ public class WalletService {
 
   private static final String KUM = "KUM";
   private static final String DRUB = "DRUB";
-
   private static final String SYSTEM = "SYSTEM";
   private static final String USER = "USER";
-
   private static final String ISSUANCE_ACCOUNT = "KUM_ISSUANCE";
   private static final String ROULETTE_HOUSE = "ROULETTE_HOUSE";
-
   private static final String REGISTRATION_BONUS = "REGISTRATION_BONUS";
+  private static final String GUESS_REWARD = "GUESS_REWARD";
 
   private static final long INITIAL_KUM = 100L;
   private static final long ROULETTE_STAKE = 2L;
+  private static final long GUESS_REWARD_KUM = 1L;
 
   private final AccountRepository accountRepository;
   private final JournalTransactionRepository transactionRepository;
@@ -47,85 +47,95 @@ public class WalletService {
     this.holdRepository = holdRepository;
   }
 
-  /**
-   * Создание счетов и стартовое начисление.
-   * При вызове из регистрации участвует в её транзакции.
-   */
   @Transactional
   public void openAccountsForNewUser(UUID userId) {
     Objects.requireNonNull(userId, "Не указан пользователь");
 
-    if (accountRepository
-      .findByOwnerIdAndCurrency(userId, KUM)
-      .isPresent()
-      || accountRepository
-      .findByOwnerIdAndCurrency(userId, DRUB)
-      .isPresent()) {
-      throw new IllegalStateException(
-        "Счета пользователя уже созданы"
-      );
+    if (accountRepository.findByOwnerIdAndCurrency(userId, KUM).isPresent()
+      || accountRepository.findByOwnerIdAndCurrency(userId, DRUB).isPresent()) {
+      throw new IllegalStateException("Счета пользователя уже созданы");
     }
 
-    Account issuanceReference = requireSystemAccount(
-      ISSUANCE_ACCOUNT
+    Account issuanceReference = requireSystemAccount(ISSUANCE_ACCOUNT);
+    Account issuance = findLockedAccount(
+      accountRepository.findAllByIdForUpdate(
+        List.of(issuanceReference.getId())
+      ),
+      issuanceReference.getId()
     );
 
-    // Стартовое начисление также защищаем блокировкой
-    // системного счёта при параллельных регистрациях.
-    Account issuanceAccount = accountRepository
-      .findAllByIdForUpdate(List.of(issuanceReference.getId()))
-      .stream()
-      .findFirst()
-      .orElseThrow(() -> new IllegalStateException(
-        "Системный счёт выпуска не найден"
-      ));
+    Account kum = new Account(UUID.randomUUID(), userId, KUM);
+    Account drub = new Account(UUID.randomUUID(), userId, DRUB);
 
-    Account kumAccount = new Account(
-      UUID.randomUUID(),
-      userId,
-      KUM
-    );
-
-    Account drubAccount = new Account(
-      UUID.randomUUID(),
-      userId,
-      DRUB
-    );
-
-    kumAccount.applyDelta(INITIAL_KUM);
-    issuanceAccount.applyDelta(-INITIAL_KUM);
-
-    accountRepository.saveAllAndFlush(
-      List.of(kumAccount, drubAccount)
-    );
+    kum.applyDelta(INITIAL_KUM);
+    issuance.applyDelta(-INITIAL_KUM);
+    accountRepository.saveAllAndFlush(List.of(kum, drub));
 
     JournalTransaction transaction = createTransaction(
       userId,
       REGISTRATION_BONUS,
       userId,
       "registration:" + userId,
-      sha256(
-        REGISTRATION_BONUS
-          + "|" + userId
-          + "|" + KUM
-          + "|" + INITIAL_KUM
-      )
+      sha256(REGISTRATION_BONUS + "|" + userId + "|" + KUM + "|" + INITIAL_KUM)
     );
 
-    savePostings(
-      transaction,
-      kumAccount,
-      issuanceAccount,
-      INITIAL_KUM
-    );
+    savePostings(transaction, kum, issuance, INITIAL_KUM);
   }
 
-  /**
-   * Создаёт резерв ставки.
-   *
-   * Метод вызывается из сервиса создания раунда,
-   * внутри уже открытой транзакции.
-   */
+  @Transactional
+  public UUID rewardGuess(UUID userId, UUID roundId) {
+    if (userId == null || roundId == null) {
+      throw new IllegalArgumentException("Для награды нужны userId и roundId");
+    }
+
+    Account issuanceReference = requireSystemAccount(ISSUANCE_ACCOUNT);
+    Account playerReference = accountRepository
+      .findByOwnerIdAndCurrency(userId, KUM)
+      .orElseThrow(() -> new IllegalStateException(
+        "Не найден KUM-счёт пользователя"
+      ));
+
+    List<Account> accounts = accountRepository.findAllByIdForUpdate(
+      List.of(playerReference.getId(), issuanceReference.getId())
+    );
+
+    Account player = findLockedAccount(accounts, playerReference.getId());
+    Account issuance = findLockedAccount(accounts, issuanceReference.getId());
+    requirePlayerAccount(player, userId);
+
+    String key = "guess-round:" + roundId;
+    String hash = sha256(
+      GUESS_REWARD + "|" + userId + "|" + roundId
+        + "|" + KUM + "|" + GUESS_REWARD_KUM
+    );
+
+    Optional<JournalTransaction> existing = transactionRepository
+      .findByActorIdAndOperationTypeAndIdempotencyKey(
+        userId, GUESS_REWARD, key
+      );
+
+    if (existing.isPresent()) {
+      JournalTransaction transaction = existing.orElseThrow();
+
+      if (!hash.equals(transaction.getRequestHash())) {
+        throw new IdempotencyConflictException();
+      }
+
+      return transaction.getId();
+    }
+
+    player.applyDelta(GUESS_REWARD_KUM);
+    issuance.applyDelta(-GUESS_REWARD_KUM);
+    accountRepository.saveAllAndFlush(List.of(player, issuance));
+
+    JournalTransaction transaction = createTransaction(
+      userId, GUESS_REWARD, roundId, key, hash
+    );
+
+    savePostings(transaction, player, issuance, GUESS_REWARD_KUM);
+    return transaction.getId();
+  }
+
   @Transactional(propagation = Propagation.MANDATORY)
   public Hold reserveRouletteStake(
     UUID userId,
@@ -146,23 +156,15 @@ public class WalletService {
         "Кошелёк пользователя не найден"
       ));
 
-    // Создание раунда будет обрабатывать повтор запроса
-    // раньше этого вызова. Здесь проверяем внутренний инвариант.
-    if (holdRepository
-      .findByAccountIdAndReasonAndEntityId(
-        account.getId(),
-        Hold.ROULETTE_STAKE,
-        roundId
-      )
-      .isPresent()) {
-      throw new IllegalStateException(
-        "Резерв для этого раунда уже существует"
-      );
+    if (holdRepository.findByAccountIdAndReasonAndEntityId(
+      account.getId(), Hold.ROULETTE_STAKE, roundId
+    ).isPresent()) {
+      throw new IllegalStateException("Резерв для этого раунда уже существует");
     }
 
     account.reserve(ROULETTE_STAKE);
 
-    Hold hold = new Hold(
+    return holdRepository.saveAndFlush(new Hold(
       holdId,
       account.getId(),
       ROULETTE_STAKE,
@@ -170,22 +172,9 @@ public class WalletService {
       roundId,
       createdAt,
       expiresAt
-    );
-
-    // Резерв должен существовать до INSERT roulette_rounds,
-    // поскольку миграция содержит внешний ключ на holds.
-    return holdRepository.saveAndFlush(hold);
+    ));
   }
 
-  /**
-   * Проводит финансовый результат раунда.
-   *
-   * Вызывающий сервис обязан:
-   * 1. Заблокировать раунд.
-   * 2. Проверить статус PENDING и наступление revealAt.
-   * 3. Передать результат из БД, а не из HTTP-запроса.
-   * 4. Завершить раунд в этой же транзакции.
-   */
   @Transactional(propagation = Propagation.MANDATORY)
   public RouletteSettlement settleRoulette(
     UUID userId,
@@ -202,36 +191,19 @@ public class WalletService {
     Objects.requireNonNull(now);
 
     if (result < 1 || result > 10) {
-      throw new IllegalArgumentException(
-        "Результат рулетки должен быть от 1 до 10"
-      );
+      throw new IllegalArgumentException("Результат рулетки должен быть от 1 до 10");
     }
 
-    Account houseReference = requireSystemAccount(
-      ROULETTE_HOUSE
+    Account houseReference = requireSystemAccount(ROULETTE_HOUSE);
+    List<Account> accounts = accountRepository.findAllByIdForUpdate(
+      List.of(accountId, houseReference.getId())
     );
 
-    // Счёт игрока и счёт казино блокируются одним запросом
-    // в одинаковом порядке по UUID.
-    List<Account> lockedAccounts = accountRepository
-      .findAllByIdForUpdate(
-        List.of(accountId, houseReference.getId())
-      );
-
-    Account player = findLockedAccount(
-      lockedAccounts,
-      accountId
-    );
-
-    Account house = findLockedAccount(
-      lockedAccounts,
-      houseReference.getId()
-    );
-
+    Account player = findLockedAccount(accounts, accountId);
+    Account house = findLockedAccount(accounts, houseReference.getId());
     requirePlayerAccount(player, userId);
 
-    Hold hold = holdRepository
-      .findByIdForUpdate(holdId)
+    Hold hold = holdRepository.findByIdForUpdate(holdId)
       .orElseThrow(() -> new IllegalStateException(
         "Резерв ставки не найден"
       ));
@@ -243,15 +215,10 @@ public class WalletService {
     String operationType;
 
     if (result == 7) {
-      // Освобождаем только резерв этого раунда.
-      // Чужие резервы остаются заблокированными.
       player.release(hold.getAmountMinor());
       hold.release(now);
 
-      long penalty = Math.min(
-        100L,
-        player.getAvailableMinor()
-      );
+      long penalty = Math.min(100L, player.getAvailableMinor());
 
       if (penalty <= 0) {
         throw new IllegalStateException(
@@ -261,7 +228,6 @@ public class WalletService {
 
       delta = -penalty;
       operationType = "ROULETTE_GREEN";
-
       player.applyDelta(delta);
     } else if (result <= 5) {
       player.release(hold.getAmountMinor());
@@ -269,7 +235,6 @@ public class WalletService {
 
       delta = ROULETTE_STAKE;
       operationType = "ROULETTE_WIN";
-
       player.applyDelta(delta);
     } else {
       delta = -ROULETTE_STAKE;
@@ -279,33 +244,20 @@ public class WalletService {
       hold.capture(now);
     }
 
-    // Противоположное изменение системного счёта.
     house.applyDelta(Math.negateExact(delta));
-
-    String idempotencyKey = "roulette:settle:" + roundId;
-
-    String requestHash = sha256(
-      "ROULETTE_SETTLEMENT"
-        + "|" + userId
-        + "|" + roundId
-        + "|" + result
-        + "|rules:1"
-    );
 
     JournalTransaction transaction = createTransaction(
       userId,
       operationType,
       roundId,
-      idempotencyKey,
-      requestHash
+      "roulette:settle:" + roundId,
+      sha256(
+        "ROULETTE_SETTLEMENT|" + userId + "|" + roundId
+          + "|" + result + "|rules:1"
+      )
     );
 
-    savePostings(
-      transaction,
-      player,
-      house,
-      delta
-    );
+    savePostings(transaction, player, house, delta);
 
     return new RouletteSettlement(
       transaction.getId(),
@@ -335,21 +287,14 @@ public class WalletService {
   }
 
   private Account requireSystemAccount(String systemCode) {
-    return accountRepository
-      .findByAccountTypeAndSystemCodeAndCurrency(
-        SYSTEM,
-        systemCode,
-        KUM
-      )
-      .orElseThrow(() -> new IllegalStateException(
-        "Не найден системный счёт " + systemCode
-      ));
+    return accountRepository.findByAccountTypeAndSystemCodeAndCurrency(
+      SYSTEM, systemCode, KUM
+    ).orElseThrow(() -> new IllegalStateException(
+      "Не найден системный счёт " + systemCode
+    ));
   }
 
-  private Account findLockedAccount(
-    List<Account> accounts,
-    UUID id
-  ) {
+  private Account findLockedAccount(List<Account> accounts, UUID id) {
     return accounts.stream()
       .filter(account -> id.equals(account.getId()))
       .findFirst()
@@ -358,10 +303,7 @@ public class WalletService {
       ));
   }
 
-  private void requirePlayerAccount(
-    Account account,
-    UUID userId
-  ) {
+  private void requirePlayerAccount(Account account, UUID userId) {
     if (!USER.equals(account.getAccountType())
       || !userId.equals(account.getOwnerId())
       || !KUM.equals(account.getCurrency())) {
@@ -371,15 +313,9 @@ public class WalletService {
     }
   }
 
-  private void requireRouletteHold(
-    Hold hold,
-    UUID accountId,
-    UUID roundId
-  ) {
+  private void requireRouletteHold(Hold hold, UUID accountId, UUID roundId) {
     if (!hold.isActive()) {
-      throw new IllegalStateException(
-        "Резерв ставки уже закрыт"
-      );
+      throw new IllegalStateException("Резерв ставки уже закрыт");
     }
 
     if (!accountId.equals(hold.getAccountId())
@@ -399,22 +335,16 @@ public class WalletService {
     String idempotencyKey,
     String requestHash
   ) {
-    JournalTransaction transaction = new JournalTransaction(
+    return transactionRepository.saveAndFlush(new JournalTransaction(
       UUID.randomUUID(),
       actorId,
       operationType,
       entityId,
       idempotencyKey,
       requestHash
-    );
-
-    return transactionRepository.saveAndFlush(transaction);
+    ));
   }
 
-  /**
-   * Создаёт две противоположные проводки.
-   * playerDelta может быть положительным или отрицательным.
-   */
   private void savePostings(
     JournalTransaction transaction,
     Account player,
@@ -422,42 +352,27 @@ public class WalletService {
     long playerDelta
   ) {
     if (playerDelta == 0) {
-      throw new IllegalArgumentException(
-        "Нельзя создать нулевые проводки"
-      );
+      throw new IllegalArgumentException("Нельзя создать нулевые проводки");
     }
 
-    postingRepository.saveAll(
-      List.of(
-        new Posting(
-          UUID.randomUUID(),
-          transaction,
-          player,
-          KUM,
-          playerDelta
-        ),
-        new Posting(
-          UUID.randomUUID(),
-          transaction,
-          system,
-          KUM,
-          Math.negateExact(playerDelta)
-        )
+    postingRepository.saveAll(List.of(
+      new Posting(
+        UUID.randomUUID(), transaction, player, KUM, playerDelta
+      ),
+      new Posting(
+        UUID.randomUUID(), transaction, system, KUM,
+        Math.negateExact(playerDelta)
       )
-    );
+    ));
   }
 
   private static String sha256(String value) {
     try {
       byte[] hash = MessageDigest.getInstance("SHA-256")
         .digest(value.getBytes(StandardCharsets.UTF_8));
-
       return HexFormat.of().formatHex(hash);
     } catch (NoSuchAlgorithmException exception) {
-      throw new IllegalStateException(
-        "SHA-256 недоступен",
-        exception
-      );
+      throw new IllegalStateException("SHA-256 недоступен", exception);
     }
   }
 

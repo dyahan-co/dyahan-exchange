@@ -1,28 +1,29 @@
 package com.dyahan.core.api;
 
+import com.dyahan.core.guess.GuessRoundNotFoundException;
+import com.dyahan.core.guess.GuessSubmissionConflictException;
 import com.dyahan.core.user.InvalidCredentialsException;
 import com.dyahan.core.user.NicknameAlreadyTakenException;
 import com.dyahan.core.user.UnauthorizedException;
+import com.dyahan.core.wallet.IdempotencyConflictException;
 import com.dyahan.core.wallet.InsufficientFundsException;
+import jakarta.validation.ConstraintViolationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.http.converter.HttpMessageNotReadableException;
-
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
-
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.UUID;
 
 @RestControllerAdvice
@@ -36,10 +37,9 @@ public class ApiExceptionHandler {
     InsufficientFundsException exception
   ) {
     return error(
-      HttpStatus.UNPROCESSABLE_ENTITY,
+      HttpStatusCode.valueOf(422),
       "INSUFFICIENT_FUNDS",
-      exception.getMessage(),
-      false
+      exception.getMessage()
     );
   }
 
@@ -50,8 +50,7 @@ public class ApiExceptionHandler {
     return error(
       HttpStatus.UNAUTHORIZED,
       "UNAUTHORIZED",
-      exception.getMessage(),
-      false
+      exception.getMessage()
     );
   }
 
@@ -62,8 +61,7 @@ public class ApiExceptionHandler {
     return error(
       HttpStatus.UNAUTHORIZED,
       "INVALID_CREDENTIALS",
-      exception.getMessage(),
-      false
+      exception.getMessage()
     );
   }
 
@@ -74,8 +72,40 @@ public class ApiExceptionHandler {
     return error(
       HttpStatus.CONFLICT,
       "NICKNAME_TAKEN",
-      exception.getMessage(),
-      false
+      exception.getMessage()
+    );
+  }
+
+  @ExceptionHandler(GuessRoundNotFoundException.class)
+  public ResponseEntity<ApiError> guessNotFound(
+    GuessRoundNotFoundException exception
+  ) {
+    return error(
+      HttpStatus.NOT_FOUND,
+      "GUESS_ROUND_NOT_FOUND",
+      exception.getMessage()
+    );
+  }
+
+  @ExceptionHandler(GuessSubmissionConflictException.class)
+  public ResponseEntity<ApiError> guessConflict(
+    GuessSubmissionConflictException exception
+  ) {
+    return error(
+      HttpStatus.CONFLICT,
+      "GUESS_SUBMISSION_CONFLICT",
+      exception.getMessage()
+    );
+  }
+
+  @ExceptionHandler(IdempotencyConflictException.class)
+  public ResponseEntity<ApiError> idempotencyConflict(
+    IdempotencyConflictException exception
+  ) {
+    return error(
+      HttpStatus.CONFLICT,
+      "IDEMPOTENCY_CONFLICT",
+      exception.getMessage()
     );
   }
 
@@ -83,14 +113,15 @@ public class ApiExceptionHandler {
     MethodArgumentNotValidException.class,
     MethodArgumentTypeMismatchException.class,
     HttpMessageNotReadableException.class,
-    MissingRequestHeaderException.class
+    MissingRequestHeaderException.class,
+    ConstraintViolationException.class,
+    IllegalArgumentException.class
   })
   public ResponseEntity<ApiError> invalidRequest(Exception exception) {
     return error(
       HttpStatus.BAD_REQUEST,
       "INVALID_REQUEST",
-      "Проверьте поля запроса, идентификаторы и обязательные заголовки",
-      false
+      "Проверьте поля запроса, идентификаторы и обязательные заголовки"
     );
   }
 
@@ -100,7 +131,6 @@ public class ApiExceptionHandler {
   ) {
     HttpStatusCode status = exception.getStatusCode();
 
-    // Не раскрываем причины внутренних ошибок клиенту.
     if (status.is5xxServerError()) {
       return internalError(exception);
     }
@@ -115,11 +145,13 @@ public class ApiExceptionHandler {
       default -> "REQUEST_REJECTED";
     };
 
-    String message = exception.getReason() != null
-      ? exception.getReason()
-      : "Запрос отклонён";
-
-    return error(status, code, message, false);
+    return error(
+      status,
+      code,
+      exception.getReason() != null
+        ? exception.getReason()
+        : "Запрос отклонён"
+    );
   }
 
   @ExceptionHandler(Exception.class)
@@ -129,12 +161,7 @@ public class ApiExceptionHandler {
 
   private ResponseEntity<ApiError> internalError(Exception exception) {
     String requestId = UUID.randomUUID().toString();
-
-    log.error(
-      "Внутренняя ошибка API, requestId={}",
-      requestId,
-      exception
-    );
+    log.error("Внутренняя ошибка API, requestId={}", requestId, exception);
 
     return response(
       HttpStatus.INTERNAL_SERVER_ERROR,
@@ -143,7 +170,8 @@ public class ApiExceptionHandler {
         "INTERNAL_ERROR",
         "Не удалось выполнить операцию. Обновите состояние перед повтором.",
         requestId,
-        false
+        false,
+        OffsetDateTime.now(ZoneOffset.UTC)
       )
     );
   }
@@ -151,8 +179,7 @@ public class ApiExceptionHandler {
   private ResponseEntity<ApiError> error(
     HttpStatusCode status,
     String code,
-    String message,
-    boolean retryable
+    String message
   ) {
     return response(
       status,
@@ -161,7 +188,8 @@ public class ApiExceptionHandler {
         code,
         message,
         UUID.randomUUID().toString(),
-        retryable
+        false,
+        OffsetDateTime.now(ZoneOffset.UTC)
       )
     );
   }
@@ -181,7 +209,8 @@ public class ApiExceptionHandler {
     String code,
     String message,
     String requestId,
-    boolean retryable
+    boolean retryable,
+    OffsetDateTime timestamp
   ) {
   }
 }

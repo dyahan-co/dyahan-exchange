@@ -3,6 +3,7 @@ import { MarketChart } from './MarketChart';
 import { MarketAside } from './MarketAside';
 import { GameCards } from './GameCards';
 import { Shell } from '../../app/Shell';
+import { MiniBalance } from '../MiniBalance';
 
 export function MarketTerminal({ player = false }: { player?: boolean }) {
   return (
@@ -10,7 +11,7 @@ export function MarketTerminal({ player = false }: { player?: boolean }) {
       <main className="market-content">
         <div className="crumb-row">
           <span>Обзор / Рынок</span>
-          <span>{player ? '28 КУМ / 1 200 д₽' : 'Гостевой доступ'}</span>
+          <span>{player ? <MiniBalance /> : 'Гостевой доступ'}</span>
         </div>
         <h1>Рынок КУМcoin</h1>
         <section className="market-grid">

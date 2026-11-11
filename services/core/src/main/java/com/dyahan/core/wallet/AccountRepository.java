@@ -10,8 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface AccountRepository
-  extends JpaRepository<Account, UUID> {
+public interface AccountRepository extends JpaRepository<Account, UUID> {
 
   Optional<Account> findByOwnerIdAndCurrency(
     UUID ownerId,
@@ -28,22 +27,29 @@ public interface AccountRepository
   @Query("""
             select a
             from Account a
-            where a.ownerId = :userId
+            where a.accountType = :accountType
+              and a.systemCode = :systemCode
+              and a.currency = :currency
+            """)
+  Optional<Account> findSystemAccountForUpdate(
+    @Param("accountType") String accountType,
+    @Param("systemCode") String systemCode,
+    @Param("currency") String currency
+  );
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("""
+            select a
+            from Account a
+            where a.ownerId = :ownerId
               and a.currency = :currency
               and a.accountType = 'USER'
             """)
   Optional<Account> findUserAccountForUpdate(
-    @Param("userId") UUID userId,
+    @Param("ownerId") UUID ownerId,
     @Param("currency") String currency
   );
 
-  /**
-   * Для расчёта блокируем оба счёта
-   * в одинаковом порядке по ID.
-   *
-   * Все финансовые сервисы должны придерживаться
-   * такого же порядка захвата блокировок.
-   */
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("""
             select a
@@ -51,7 +57,5 @@ public interface AccountRepository
             where a.id in :ids
             order by a.id
             """)
-  List<Account> findAllByIdForUpdate(
-    @Param("ids") List<UUID> ids
-  );
+  List<Account> findAllByIdForUpdate(@Param("ids") List<UUID> ids);
 }

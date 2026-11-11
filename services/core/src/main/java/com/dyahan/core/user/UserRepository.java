@@ -16,10 +16,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
   Optional<User> findByNicknameNormalized(String nicknameNormalized);
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
-  @Query("""
-            select u
-            from User u
-            where u.id = :id
-            """)
-  Optional<User> findByIdForUpdate(@Param("id") UUID id);
+  @Query("select u from User u where u.id = :userId")
+  Optional<User> findByIdForUpdate(@Param("userId") UUID userId);
 }

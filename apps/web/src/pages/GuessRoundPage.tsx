@@ -1,38 +1,110 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { ApiError, dyahanApi, type GuessRound } from '../api/dyahanApi';
 import { Shell } from '../app/Shell';
+import { session } from '../auth/session';
 
-const DEMO_ROUND_SECONDS = 42;
+const ROUND_DURATION_SECONDS = 120;
 
 export function GuessRoundPage() {
   const navigate = useNavigate();
-  const [seconds, setSeconds] = useState(DEMO_ROUND_SECONDS);
+  const [round, setRound] = useState<GuessRound | null>(null);
+  const [seconds, setSeconds] = useState(ROUND_DURATION_SECONDS);
   const [answer, setAnswer] = useState('');
   const [hintVisible, setHintVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    if (seconds === 0) {
-      navigate('/guess/result?status=expired', { replace: true });
-      return;
+    let cancelled = false;
+
+    async function loadRound() {
+      const token = session.getToken();
+
+      if (!token) {
+        navigate('/login', { replace: true });
+        return;
+      }
+
+      try {
+        const newRound = await dyahanApi.startGuessRound(token);
+        if (!cancelled) {
+          setRound(newRound);
+          setSeconds(
+            Math.max(0, Math.ceil((new Date(newRound.expiresAt).getTime() - Date.now()) / 1000)),
+          );
+        }
+      } catch (requestError) {
+        if (!cancelled) {
+          setError(
+            requestError instanceof ApiError
+              ? requestError.message
+              : 'Не удалось загрузить раунд. Попробуйте ещё раз.',
+          );
+        }
+      }
     }
 
-    const timer = window.setTimeout(() => setSeconds((value) => value - 1), 1000);
-    return () => window.clearTimeout(timer);
-  }, [navigate, seconds]);
+    void loadRound();
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!round) return;
+
+    const timerId = window.setInterval(() => {
+      const remaining = Math.max(
+        0,
+        Math.ceil((new Date(round.expiresAt).getTime() - Date.now()) / 1000),
+      );
+
+      setSeconds(remaining);
+
+      if (remaining === 0) {
+        window.clearInterval(timerId);
+        navigate('/guess/result?status=expired', {
+          replace: true,
+          state: { round, answer: '', result: null },
+        });
+      }
+    }, 250);
+
+    return () => window.clearInterval(timerId);
+  }, [navigate, round]);
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const normalizedAnswer = answer.trim();
-    if (!normalizedAnswer || submitting) return;
+
+    const cleanAnswer = answer.trim();
+    const token = session.getToken();
+
+    if (!round || !token || !cleanAnswer || submitting || seconds === 0) return;
 
     setSubmitting(true);
-    // The local prototype records only the submitted text. It must not decide
-    // whether it matches or modify the player's balance; the API owns that.
-    navigate(`/guess/result?status=demo&answer=${encodeURIComponent(normalizedAnswer)}`);
+    setError('');
+
+    try {
+      const result = await dyahanApi.submitGuessAnswer(token, round.roundId, cleanAnswer);
+
+      navigate('/guess/result', {
+        replace: true,
+        state: { round, answer: cleanAnswer, result },
+      });
+    } catch (requestError) {
+      setError(
+        requestError instanceof ApiError
+          ? requestError.message
+          : 'Не удалось отправить ответ. Попробуйте ещё раз.',
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
 
-  const progress = (seconds / DEMO_ROUND_SECONDS) * 100;
+  const progress = Math.min(100, (seconds / ROUND_DURATION_SECONDS) * 100);
 
   return (
     <Shell>
@@ -44,98 +116,115 @@ export function GuessRoundPage() {
           <Link to="/market">← К рынку</Link>
         </div>
 
-        <div className="guess-heading">
-          <div>
-            <span className="eyebrow">Раунд #0042 · демо</span>
-            <h1>
-              Слоп-угадайка<span className="accent-dot">.</span>
-            </h1>
-          </div>
-          <div className={`timer-badge ${seconds <= 10 ? 'urgent' : ''}`} aria-live="off">
-            <span>ОСТАЛОСЬ</span>
-            <b>00:{String(seconds).padStart(2, '0')}</b>
-          </div>
-        </div>
-
-        <div
-          className="timer-track"
-          role="progressbar"
-          aria-label="Время на ответ"
-          aria-valuemin={0}
-          aria-valuemax={DEMO_ROUND_SECONDS}
-          aria-valuenow={seconds}
-        >
-          <i style={{ width: `${progress}%` }} />
-        </div>
-
-        <section className="guess-layout">
-          <figure className="guess-art">
-            <div
-              className="guess-art-image"
-              role="img"
-              aria-label="Иллюстрация раунда: Дяхан и КУМ на фоне биржевого графика"
+        {error && !round ? (
+          <section className="answer-panel" role="alert">
+            <h1>Не удалось открыть раунд</h1>
+            <p>{error}</p>
+            <button
+              className="button primary"
+              type="button"
+              onClick={() => window.location.reload()}
             >
-              <div className="guess-art-coin">К</div>
-              <div className="guess-art-brand">
-                ДЯХАН
-                <br />
-                <span>Exchange</span>
+              Попробовать ещё раз
+            </button>
+          </section>
+        ) : !round ? (
+          <section className="answer-panel" aria-live="polite">
+            Загружаем раунд…
+          </section>
+        ) : (
+          <>
+            <div className="guess-heading">
+              <div>
+                <span className="eyebrow">Раунд · {round.roundId}</span>
+                <h1>
+                  Слоп-угадайка<span className="accent-dot">.</span>
+                </h1>
+              </div>
+
+              <div className={`timer-badge ${seconds <= 10 ? 'urgent' : ''}`} aria-live="off">
+                <span>ОСТАЛОСЬ</span>
+                <b>
+                  {String(Math.floor(seconds / 60)).padStart(2, '0')}:
+                  {String(seconds % 60).padStart(2, '0')}
+                </b>
               </div>
             </div>
-            <figcaption>
-              Условная картинка для макета. В продукте — подготовленный нейрослоп.
-            </figcaption>
-          </figure>
 
-          <form className="answer-panel" onSubmit={submit}>
-            <span className="eyebrow">РАУНД #0042</span>
-            <h2>Что здесь изображено?</h2>
-            <p>Назовите картинку или придумайте промпт.</p>
-
-            <label className="guess-answer-label" htmlFor="guess-answer">
-              Ваш ответ
-            </label>
-            <input
-              id="guess-answer"
-              className="guess-answer-input"
-              value={answer}
-              onChange={(event) => setAnswer(event.target.value)}
-              placeholder="Введите свой вариант"
-              maxLength={500}
-              autoComplete="off"
-              disabled={submitting}
-            />
-            <button
-              className="button primary full submit-answer"
-              type="submit"
-              disabled={!answer.trim() || submitting}
+            <div
+              className="timer-track"
+              role="progressbar"
+              aria-label="Время на ответ"
+              aria-valuemin={0}
+              aria-valuemax={ROUND_DURATION_SECONDS}
+              aria-valuenow={seconds}
             >
-              {submitting ? 'Отправляем…' : 'Ответить'}
-            </button>
-
-            <div className="guess-rules" aria-label="Правила раунда">
-              <b>Один ответ закрывает раунд.</b>
-              <span>Верный ответ: +1 КУМ.</span>
-              <span>Ошибка не уменьшит баланс.</span>
+              <i style={{ width: `${progress}%` }} />
             </div>
 
-            <button
-              className="hint-button"
-              type="button"
-              aria-expanded={hintVisible}
-              onClick={() => setHintVisible((visible) => !visible)}
-            >
-              <span>{hintVisible ? 'Скрыть подсказку' : 'Подсказка: далеко от дома.'}</span>
-              <b>{hintVisible ? '−' : '+'}</b>
-            </button>
-            {hintVisible && (
-              <p className="guess-hint">
-                В этом раунде мы ищем необычную сцену, связанную с космосом.
-              </p>
-            )}
-            <small className="demo-note">ДЕМО-РАУНД · РЕЗУЛЬТАТ И БАЛАНС ОПРЕДЕЛЯЕТ СЕРВЕР</small>
-          </form>
-        </section>
+            <section className="guess-layout">
+              <figure className="guess-art">
+                <img
+                  className="guess-art-image"
+                  src={round.imageUrl}
+                  alt="Картинка для раунда угадайки"
+                />
+                <figcaption>Изображение раунда</figcaption>
+              </figure>
+
+              <form className="answer-panel" onSubmit={submit}>
+                <span className="eyebrow">УГАДАЙКА</span>
+                <h2>Что здесь изображено?</h2>
+                <p>Назовите изображённое на картинке.</p>
+
+                <label className="guess-answer-label" htmlFor="guess-answer">
+                  Ваш ответ
+                </label>
+                <input
+                  id="guess-answer"
+                  className="guess-answer-input"
+                  value={answer}
+                  onChange={(event) => setAnswer(event.target.value)}
+                  placeholder="Введите свой вариант"
+                  maxLength={240}
+                  autoComplete="off"
+                  disabled={submitting || seconds === 0}
+                />
+
+                <button
+                  className="button primary full submit-answer"
+                  type="submit"
+                  disabled={!answer.trim() || submitting || seconds === 0}
+                >
+                  {submitting ? 'Проверяем…' : 'Ответить'}
+                </button>
+
+                <div className="guess-rules" aria-label="Правила раунда">
+                  <b>Один ответ закрывает раунд.</b>
+                  <span>Верный ответ принесёт награду.</span>
+                </div>
+
+                <button
+                  className="hint-button"
+                  type="button"
+                  aria-expanded={hintVisible}
+                  onClick={() => setHintVisible((visible) => !visible)}
+                >
+                  <span>{hintVisible ? 'Скрыть подсказку' : 'Показать подсказку'}</span>
+                  <b>{hintVisible ? '−' : '+'}</b>
+                </button>
+
+                {hintVisible && <p className="guess-hint">{round.hint}</p>}
+
+                {error && (
+                  <p className="form-message" role="alert">
+                    {error}
+                  </p>
+                )}
+              </form>
+            </section>
+          </>
+        )}
       </main>
     </Shell>
   );

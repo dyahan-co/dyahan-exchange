@@ -1,13 +1,17 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { App } from './App';
+import { Provider } from 'react-redux';
+import { makeStore } from './store';
 
 describe('App routes', () => {
   it('renders the guest market at the root route', () => {
     render(
-      <MemoryRouter initialEntries={['/']}>
-        <App />
-      </MemoryRouter>,
+      <Provider store={makeStore()}>
+        <MemoryRouter initialEntries={['/']}>
+          <App />
+        </MemoryRouter>
+      </Provider>,
     );
 
     expect(screen.getByRole('heading', { name: /Рынок КУМcoin/ })).toBeInTheDocument();
@@ -19,13 +23,14 @@ describe('App routes', () => {
 
   it('renders the player market at the market route', () => {
     render(
-      <MemoryRouter initialEntries={['/market']}>
-        <App />
-      </MemoryRouter>,
+      <Provider store={makeStore()}>
+        <MemoryRouter initialEntries={['/market']}>
+          <App />
+        </MemoryRouter>
+      </Provider>,
     );
 
     expect(screen.getByRole('heading', { name: /Рынок КУМcoin/ })).toBeInTheDocument();
-    expect(screen.getByText('28 КУМ / 1 200 д₽')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Вернуться к угадайке/ })).toHaveAttribute(
       'href',
       '/guess',
