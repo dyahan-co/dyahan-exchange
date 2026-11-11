@@ -13,6 +13,8 @@ import { Link as RouterLink } from 'react-router-dom';
 import { MiniBalance } from '../components/MiniBalance';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../store';
+import { Shell } from '../app/Shell';
+
 
 interface Transaction {
   time: string;
@@ -80,9 +82,9 @@ export default function ProfilePage() {
   };
 
   return (
-    <Box
+    <Shell>
+        <Box
       sx={{
-        bgcolor: 'background.default',
         color: 'text.primary',
         minHeight: '100vh',
         display: 'flex',
@@ -258,5 +260,6 @@ export default function ProfilePage() {
         </Typography>
       </Container>
     </Box>
+    </Shell>
   );
 }
