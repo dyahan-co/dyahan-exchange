@@ -8,6 +8,7 @@ import { makeStore } from '../store';
 
 vi.mock('../auth/session', () => ({
   session: {
+    getToken: vi.fn(),
     login: vi.fn(),
     register: vi.fn(),
     restore: vi.fn(),
@@ -45,6 +46,7 @@ beforeEach(() => {
   vi.mocked(session.register).mockResolvedValue(mockUser);
   vi.mocked(session.restore).mockResolvedValue(mockUser);
   vi.mocked(session.getUser).mockReturnValue(mockUser);
+  vi.mocked(session.login).mockResolvedValue(mockUser);
 });
 
 describe('LoginPage and LoginForm', () => {
