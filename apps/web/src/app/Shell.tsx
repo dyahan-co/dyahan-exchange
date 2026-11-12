@@ -15,6 +15,7 @@ export function Shell({ children }: { children: ReactNode }) {
 
   const market = pathname === '/' || pathname === '/market';
   const games = pathname.startsWith('/guess') || pathname.startsWith('/roulette');
+  const bank = pathname.startsWith('/bank');
 
   useEffect(() => {
     function updateUser() {
@@ -53,7 +54,9 @@ export function Shell({ children }: { children: ReactNode }) {
             </Link>
             <Link to="/market#p2p">P2P</Link>
             <Link to="/market#chat">Чат</Link>
-            <Link to="/market#bank">Банк</Link>
+            <Link className={bank ? 'active' : ''} to="/bank">
+              Банк
+            </Link>
             <Link to="/market#community">Сообщество</Link>
           </nav>
 

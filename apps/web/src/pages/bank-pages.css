@@ -1,0 +1,425 @@
+/* stylelint-disable no-descending-specificity -- Bank screen states are grouped by UI section. */
+.bank-page {
+  padding-top: 10px;
+}
+
+.bank-topline,
+.bank-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.bank-topline {
+  margin: 0 0 34px;
+}
+
+.bank-topline .feature-breadcrumb {
+  margin: 0;
+}
+
+.bank-wallet-chip {
+  color: #aaa;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.bank-title-row {
+  margin-bottom: 36px;
+}
+
+.bank-title-row h1 {
+  margin: 8px 0 0;
+  color: #f7f7f7;
+  font-size: clamp(36px, 4vw, 54px);
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.bank-demo-tag {
+  border: 1px solid rgb(255 212 0 / 32%);
+  padding: 8px 11px;
+  color: var(--yellow);
+  font:
+    700 10px Arial,
+    sans-serif;
+  letter-spacing: 0.12em;
+}
+
+.bank-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(270px, 0.75fr);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: stretch;
+  padding-bottom: 44px;
+}
+
+.bank-offer-card {
+  min-height: 690px;
+  border: 1px solid #292929;
+  border-radius: 3px;
+  padding: clamp(24px, 3vw, 42px);
+  background: #141414;
+  box-shadow: 0 22px 55px rgb(0 0 0 / 15%);
+}
+
+.bank-card-eyebrow {
+  margin: 0;
+  color: #888;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.bank-offer-card > h2 {
+  margin: 40px 0 18px;
+  color: #fff;
+  font-size: clamp(64px, 8vw, 94px);
+  font-weight: 400;
+  letter-spacing: -0.06em;
+  line-height: 1;
+}
+
+.bank-offer-card > h2 span {
+  letter-spacing: -0.025em;
+}
+
+.bank-offer-subtitle,
+.bank-countdown {
+  margin: 0;
+  color: #929292;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.bank-offer-subtitle i {
+  padding: 0 4px;
+  color: var(--yellow);
+  font-style: normal;
+}
+
+.bank-terms-table {
+  display: grid;
+  gap: 23px;
+  margin: 48px 0 34px;
+  border-top: 1px solid #2b2b2b;
+  padding-top: 28px;
+}
+
+.bank-terms-table > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 18px;
+  color: #969696;
+  font-size: 15px;
+}
+
+.bank-terms-table strong {
+  color: #f4f4f4;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.bank-eligibility {
+  display: grid;
+  gap: 9px;
+  margin: 32px 0 22px;
+  font:
+    12px/1.5 Arial,
+    sans-serif;
+}
+
+.bank-eligibility p {
+  display: flex;
+  gap: 9px;
+  margin: 0;
+}
+
+.condition-met {
+  color: #a8e65a;
+}
+
+.condition-unmet {
+  color: #b5b5b5;
+}
+
+.bank-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 28px 0 24px;
+  color: #e6e6e6;
+  font-size: 13px;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.bank-consent input {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  margin: 1px 0 0;
+  accent-color: var(--yellow);
+}
+
+.bank-action {
+  width: 100%;
+  min-height: 54px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--yellow);
+  border-radius: 3px;
+  padding: 12px 18px;
+  background: var(--yellow);
+  color: #090909;
+  font:
+    700 14px Georgia,
+    serif;
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    opacity 150ms ease,
+    transform 150ms ease;
+}
+
+.bank-action:hover:not(:disabled) {
+  background: #ffe45c;
+  transform: translateY(-1px);
+}
+
+.bank-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.bank-action-link {
+  text-decoration: none;
+}
+
+.bank-prototype-note,
+.bank-repay-note {
+  margin: 14px 0 0;
+  color: #777;
+  font:
+    11px/1.6 Arial,
+    sans-serif;
+}
+
+.bank-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 12px 0 26px;
+}
+
+.bank-info > .feature-eyebrow {
+  margin: 0 0 8px;
+}
+
+.bank-info > h2 {
+  margin: 0 0 36px;
+  color: #f5f5f5;
+  font-size: clamp(24px, 2.5vw, 30px);
+  font-weight: 600;
+}
+
+.bank-info section {
+  max-width: 360px;
+  margin-bottom: 30px;
+}
+
+.bank-info section h3 {
+  margin: 0 0 14px;
+  color: #f0f0f0;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.bank-info section p {
+  margin: 0;
+  color: #8e8e8e;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.bank-preview-link {
+  display: inline-flex;
+  gap: 8px;
+  margin: 2px 0 24px;
+  color: #8e8e8e;
+  font:
+    11px Arial,
+    sans-serif;
+  text-decoration-color: #555;
+  text-underline-offset: 4px;
+}
+
+.bank-preview-link:hover {
+  color: var(--yellow);
+}
+
+.bank-warning {
+  margin-top: auto;
+  color: var(--yellow);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.bank-countdown {
+  margin-top: -2px;
+  color: var(--yellow);
+  font-size: 18px;
+}
+
+.bank-countdown.overdue {
+  color: #f06a70;
+}
+
+.bank-loan-card .bank-terms-table {
+  margin-top: 42px;
+  margin-bottom: 38px;
+}
+
+.bank-repay-note {
+  margin: 0 0 24px;
+  font-size: 12px;
+}
+
+.bank-success,
+.bank-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border: 1px solid rgb(255 212 0 / 24%);
+  padding: 13px 16px;
+  color: #eee;
+  background: #14130d;
+  font:
+    12px/1.5 Arial,
+    sans-serif;
+}
+
+.bank-alert {
+  margin: 0 0 18px;
+}
+
+.bank-alert a,
+.bank-alert button {
+  flex: 0 0 auto;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--yellow);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.bank-empty-state {
+  max-width: 680px;
+  margin: 70px auto;
+  border: 1px solid #292929;
+  padding: 54px 30px;
+  text-align: center;
+  background: #141414;
+}
+
+.bank-empty-icon {
+  color: var(--yellow);
+  font-size: 34px;
+}
+
+.bank-empty-state h2 {
+  margin: 18px 0 10px;
+  color: #f7f7f7;
+}
+
+.bank-empty-state p {
+  margin: 0 auto 24px;
+  color: #999;
+  font:
+    13px/1.6 Arial,
+    sans-serif;
+}
+
+.bank-empty-state .bank-action {
+  width: auto;
+  text-decoration: none;
+}
+
+.bank-page :focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+@media (width <= 900px) {
+  .bank-layout {
+    grid-template-columns: minmax(0, 1.1fr) minmax(230px, 0.9fr);
+    gap: 32px;
+  }
+
+  .bank-offer-card {
+    min-height: auto;
+  }
+}
+
+@media (width <= 650px) {
+  .bank-topline {
+    align-items: flex-start;
+    margin-bottom: 26px;
+  }
+
+  .bank-wallet-chip {
+    max-width: 50%;
+    white-space: normal;
+    text-align: right;
+  }
+
+  .bank-title-row {
+    align-items: flex-end;
+    margin-bottom: 25px;
+  }
+
+  .bank-title-row h1 {
+    font-size: 38px;
+  }
+
+  .bank-layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .bank-offer-card {
+    padding: 24px 20px;
+  }
+
+  .bank-offer-card > h2 {
+    margin-top: 30px;
+    font-size: 66px;
+  }
+
+  .bank-terms-table {
+    margin-top: 34px;
+  }
+
+  .bank-info {
+    padding: 0 2px 20px;
+  }
+
+  .bank-info > h2 {
+    margin-bottom: 25px;
+  }
+
+  .bank-info section {
+    margin-bottom: 22px;
+  }
+
+  .bank-warning {
+    margin-top: 8px;
+  }
+}
