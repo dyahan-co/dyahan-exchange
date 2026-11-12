@@ -54,8 +54,12 @@ export function MarketChart() {
   return (
     <div className="chart-card">
       <div className="chart-topline">
-        <span><i className="live-dot" /> РЫНОК В РЕАЛЬНОМ ВРЕМЕНИ</span>
-        <span>ДЕМО ДАННЫЕ <b>●</b></span>
+        <span>
+          <i className="live-dot" /> РЫНОК В РЕАЛЬНОМ ВРЕМЕНИ
+        </span>
+        <span>
+          ДЕМО ДАННЫЕ <b>●</b>
+        </span>
       </div>
       <div className="chart-heading">
         <div>
@@ -63,7 +67,8 @@ export function MarketChart() {
           <div className="quote">
             {price(latest.close)} <small>д₽</small>
             <b className={change >= 0 ? 'market-positive' : 'market-negative'}>
-              {change >= 0 ? '+' : ''}{price(change)}% за период
+              {change >= 0 ? '+' : ''}
+              {price(change)}% за период
             </b>
           </div>
         </div>
@@ -71,7 +76,10 @@ export function MarketChart() {
           {ranges.map((item) => (
             <button
               key={item.label}
-              onClick={() => { setRange(item.label); setHoveredCandle(null); }}
+              onClick={() => {
+                setRange(item.label);
+                setHoveredCandle(null);
+              }}
               className={range === item.label ? 'selected' : ''}
               aria-pressed={range === item.label}
             >
@@ -82,13 +90,24 @@ export function MarketChart() {
       </div>
       <div className="chart-plot" onMouseLeave={() => setHoveredCandle(null)}>
         <div className="grid-lines" aria-hidden="true">
-          {axisPrices.map((value) => <span key={value}><b>{price(value)}</b></span>)}
+          {axisPrices.map((value) => (
+            <span key={value}>
+              <b>{price(value)}</b>
+            </span>
+          ))}
         </div>
         {activeCandle && hoveredCandle !== null && (
-          <div className="chart-tooltip" style={{ left: `${8 + (hoveredCandle / (candles.length - 1)) * 80}%` }}>
+          <div
+            className="chart-tooltip"
+            style={{ left: `${8 + (hoveredCandle / (candles.length - 1)) * 80}%` }}
+          >
             <b>{price(activeCandle.close)} д₽</b>
-            <span>О {price(activeCandle.open)} · В {price(activeCandle.high)}</span>
-            <span>Н {price(activeCandle.low)} · З {price(activeCandle.close)}</span>
+            <span>
+              О {price(activeCandle.open)} · В {price(activeCandle.high)}
+            </span>
+            <span>
+              Н {price(activeCandle.low)} · З {price(activeCandle.close)}
+            </span>
             <span>{selectedRange.interval} · демо</span>
           </div>
         )}
@@ -104,10 +123,20 @@ export function MarketChart() {
                 key={index}
                 onMouseEnter={() => setHoveredCandle(index)}
                 className={rising ? 'up' : 'down'}
-                style={{ left: `${(index / candles.length) * 100}%`, width: `calc(100% / ${candles.length} * 0.58)`, top: `${top}%`, height: `${Math.max(1, bottom - top)}%` }}
+                style={{
+                  left: `${(index / candles.length) * 100}%`,
+                  width: `calc(100% / ${candles.length} * 0.58)`,
+                  top: `${top}%`,
+                  height: `${Math.max(1, bottom - top)}%`,
+                }}
                 aria-label={`Свеча ${index + 1}: ${rising ? 'рост' : 'снижение'}, закрытие ${price(candle.close)} д₽`}
               >
-                <b style={{ top: `${((bodyTop - top) / Math.max(0.01, bottom - top)) * 100}%`, height: `${Math.max(3, ((bodyBottom - bodyTop) / Math.max(0.01, bottom - top)) * 100)}%` }} />
+                <b
+                  style={{
+                    top: `${((bodyTop - top) / Math.max(0.01, bottom - top)) * 100}%`,
+                    height: `${Math.max(3, ((bodyBottom - bodyTop) / Math.max(0.01, bottom - top)) * 100)}%`,
+                  }}
+                />
               </i>
             );
           })}
@@ -117,13 +146,29 @@ export function MarketChart() {
             <i
               key={index}
               className={candle.close >= candle.open ? 'up' : 'down'}
-              style={{ left: `${(index / candles.length) * 100}%`, width: `calc(100% / ${candles.length} * 0.58)`, height: `${candle.volume}%` }}
+              style={{
+                left: `${(index / candles.length) * 100}%`,
+                width: `calc(100% / ${candles.length} * 0.58)`,
+                height: `${candle.volume}%`,
+              }}
             />
           ))}
         </div>
         <div className="time-labels">
-          <span>−{range === '1 ч' ? '60 мин' : range === '6 ч' ? '6 ч' : range === '1 д' ? '24 ч' : '7 д'}</span>
-          <span>−75%</span><span>−50%</span><span>−25%</span><span>Сейчас</span>
+          <span>
+            −
+            {range === '1 ч'
+              ? '60 мин'
+              : range === '6 ч'
+                ? '6 ч'
+                : range === '1 д'
+                  ? '24 ч'
+                  : '7 д'}
+          </span>
+          <span>−75%</span>
+          <span>−50%</span>
+          <span>−25%</span>
+          <span>Сейчас</span>
         </div>
       </div>
     </div>
