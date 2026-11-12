@@ -15,6 +15,7 @@ export function Shell({ children }: { children: ReactNode }) {
 
   const market = pathname === '/' || pathname === '/market';
   const games = pathname.startsWith('/guess') || pathname.startsWith('/roulette');
+  const p2p = pathname.startsWith('/p2p');
   const bank = pathname.startsWith('/bank');
 
   useEffect(() => {
@@ -52,7 +53,9 @@ export function Shell({ children }: { children: ReactNode }) {
             <Link className={games ? 'active' : ''} to={`${marketPath}#games`}>
               Игры
             </Link>
-            <Link to="/market#p2p">P2P</Link>
+            <Link className={p2p ? 'active' : ''} to="/p2p">
+              P2P
+            </Link>
             <Link to="/market#chat">Чат</Link>
             <Link className={bank ? 'active' : ''} to="/bank">
               Банк
