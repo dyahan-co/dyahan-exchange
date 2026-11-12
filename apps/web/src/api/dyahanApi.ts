@@ -43,6 +43,14 @@ export interface GuessSubmissionResult {
   correct: boolean;
 }
 
+export interface WalletSnapshot {
+  currency: 'KUM';
+  balanceMinor: string;
+  availableMinor: string;
+  heldMinor: string;
+  p2pBlockedUntil: string | null;
+}
+
 interface ApiErrorBody {
   message?: string | string[];
   code?: string;
@@ -122,6 +130,10 @@ export const dyahanApi = {
 
   me(token: string): Promise<MeResponse> {
     return request<MeResponse>('/api/v1/auth/me', { method: 'GET', token });
+  },
+
+  wallet(token: string): Promise<WalletSnapshot> {
+    return request<WalletSnapshot>('/api/v1/wallet', { method: 'GET', token });
   },
 
   logout(token: string): Promise<void> {
