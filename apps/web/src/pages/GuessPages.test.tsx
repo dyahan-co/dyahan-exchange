@@ -1,9 +1,11 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { dyahanApi, type GuessRound } from '../api/dyahanApi';
 import { App } from '../app/App';
 import { session } from '../auth/session';
+import { makeStore } from '../store';
 import { GuessResultPage } from './GuessResultPage';
 
 vi.mock('../api/dyahanApi', () => ({
@@ -22,6 +24,7 @@ vi.mock('../api/dyahanApi', () => ({
     login: vi.fn(),
     me: vi.fn(),
     logout: vi.fn(),
+    wallet: vi.fn(),
     startGuessRound: vi.fn(),
     submitGuessAnswer: vi.fn(),
   },
@@ -49,6 +52,13 @@ const round: GuessRound = {
 
 beforeEach(() => {
   vi.mocked(session.getToken).mockReturnValue('test-session-token');
+  vi.mocked(dyahanApi.wallet).mockResolvedValue({
+    currency: 'KUM',
+    balanceMinor: '0',
+    availableMinor: '0',
+    heldMinor: '0',
+    p2pBlockedUntil: null,
+  });
   vi.mocked(dyahanApi.startGuessRound).mockResolvedValue(round);
   vi.mocked(dyahanApi.submitGuessAnswer).mockResolvedValue({
     roundId: round.roundId,
@@ -68,9 +78,11 @@ afterEach(() => {
 describe('GuessRoundPage', () => {
   it('loads the real round, shows its image and hint, then submits the answer to the API', async () => {
     render(
-      <MemoryRouter initialEntries={['/guess']}>
-        <App />
-      </MemoryRouter>,
+      <Provider store={makeStore()}>
+        <MemoryRouter initialEntries={['/guess']}>
+          <App />
+        </MemoryRouter>
+      </Provider>,
     );
 
     expect(await screen.findByRole('heading', { name: /Слоп-угадайка/ })).toBeInTheDocument();
@@ -111,9 +123,11 @@ describe('GuessRoundPage', () => {
     vi.useFakeTimers();
 
     render(
-      <MemoryRouter initialEntries={['/guess']}>
-        <App />
-      </MemoryRouter>,
+      <Provider store={makeStore()}>
+        <MemoryRouter initialEntries={['/guess']}>
+          <App />
+        </MemoryRouter>
+      </Provider>,
     );
 
     await act(async () => {

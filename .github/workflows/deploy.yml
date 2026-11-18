@@ -1,0 +1,43 @@
+name: Deploy production
+
+on:
+  workflow_run:
+    workflows: ['CI']
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy tested main commit
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script_stop: true
+          script: |
+            cd /opt/dyahan-exchange
+            git fetch origin main
+            git checkout -B main origin/main
+            npm ci
+            npm run build --workspace @dyahan/web
+            cd gateway
+            npm ci
+            npm run build
+            cd ../services/core
+            chmod +x gradlew
+            ./gradlew bootJar
+            sudo systemctl restart dyahan-core.service
+            sudo systemctl restart dyahan-gateway.service
+            sudo systemctl is-active --quiet dyahan-core.service
+            sudo systemctl is-active --quiet dyahan-gateway.service
