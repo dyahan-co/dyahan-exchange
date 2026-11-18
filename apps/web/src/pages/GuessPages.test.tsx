@@ -46,7 +46,7 @@ const round: GuessRound = {
   roundId: 'round-test-123',
   imageObjectKey: 'dev/guess/slon.png',
   imageUrl: 'https://images.example.test/slon.png',
-  hint: '   ',
+  hint: 'Крупное животное с хоботом',
   expiresAt: new Date(Date.now() + 120_000).toISOString(),
 };
 
@@ -85,33 +85,38 @@ describe('GuessRoundPage', () => {
       </Provider>,
     );
 
-    expect(await screen.findByRole('heading', { name: /-/ })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /Слоп-угадайка/ })).toBeInTheDocument();
 
     expect(dyahanApi.startGuessRound).toHaveBeenCalledWith('test-session-token');
 
-    expect(await screen.findByRole('img', { name: '   ' })).toHaveAttribute('src', round.imageUrl);
+    expect(
+      await screen.findByRole('img', { name: 'Картинка для раунда угадайки' }),
+    ).toHaveAttribute('src', round.imageUrl);
 
-    expect(screen.getByRole('progressbar', { name: '  ' })).toHaveAttribute('aria-valuemax', '120');
+    expect(screen.getByRole('progressbar', { name: 'Время на ответ' })).toHaveAttribute(
+      'aria-valuemax',
+      '120',
+    );
 
-    fireEvent.click(screen.getByRole('button', { name: / / }));
+    fireEvent.click(screen.getByRole('button', { name: /Показать подсказку/ }));
     expect(screen.getByText(round.hint)).toBeInTheDocument();
 
-    const answer = screen.getByRole('textbox', { name: ' ' });
-    fireEvent.change(answer, { target: { value: '' } });
+    const answer = screen.getByRole('textbox', { name: 'Ваш ответ' });
+    fireEvent.change(answer, { target: { value: 'слон' } });
 
-    fireEvent.click(screen.getByRole('button', { name: '' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ответить' }));
 
     await waitFor(() => {
       expect(dyahanApi.submitGuessAnswer).toHaveBeenCalledWith(
         'test-session-token',
         round.roundId,
-        '',
+        'слон',
       );
     });
 
-    expect(await screen.findByRole('heading', { name: ' ' })).toBeInTheDocument();
-    expect(screen.getByText('   .')).toBeInTheDocument();
-    expect(screen.getByText('+1 ')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Ответ засчитан' })).toBeInTheDocument();
+    expect(screen.getByText('Сервер подтвердил правильный ответ.')).toBeInTheDocument();
+    expect(screen.getByText('+1 КУМ')).toBeInTheDocument();
   });
 
   it('uses the server expiration time and navigates to the expired result', async () => {
@@ -140,14 +145,14 @@ describe('GuessRoundPage', () => {
       await vi.advanceTimersByTimeAsync(10_000);
     });
 
-    expect(screen.getByRole('heading', { name: ' ' })).toBeInTheDocument();
-    expect(screen.getByText('0 ')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Время вышло' })).toBeInTheDocument();
+    expect(screen.getByText('0 КУМ')).toBeInTheDocument();
   });
 });
 
 describe('GuessResultPage', () => {
   function renderResult({
-    answer = '',
+    answer = 'слон',
     result = {
       roundId: round.roundId,
       status: 'WON' as const,
@@ -187,11 +192,14 @@ describe('GuessResultPage', () => {
   it('renders a successful server result and the submitted image', () => {
     renderResult();
 
-    expect(screen.getByRole('heading', { name: ' ' })).toBeInTheDocument();
-    expect(screen.getByText('   .')).toBeInTheDocument();
-    expect(screen.getByText('')).toBeInTheDocument();
-    expect(screen.getByText('+1 ')).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: '  ' })).toHaveAttribute('src', round.imageUrl);
+    expect(screen.getByRole('heading', { name: 'Ответ засчитан' })).toBeInTheDocument();
+    expect(screen.getByText('Сервер подтвердил правильный ответ.')).toBeInTheDocument();
+    expect(screen.getByText('слон')).toBeInTheDocument();
+    expect(screen.getByText('+1 КУМ')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Картинка раунда угадайки' })).toHaveAttribute(
+      'src',
+      round.imageUrl,
+    );
   });
 
   it('renders an incorrect server result without a reward', () => {
@@ -206,16 +214,18 @@ describe('GuessResultPage', () => {
       },
     });
 
-    expect(screen.getByRole('heading', { name: '  ' })).toBeInTheDocument();
-    expect(screen.getByText('0 ')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Ответ не совпал' })).toBeInTheDocument();
+    expect(screen.getByText('0 КУМ')).toBeInTheDocument();
   });
 
   it('renders an expired round', () => {
     renderResult({ answer: '', result: null, status: 'expired' });
 
-    expect(screen.getByRole('heading', { name: ' ' })).toBeInTheDocument();
-    expect(screen.getByText('   .      .')).toBeInTheDocument();
-    expect(screen.getByText('0 ')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Время вышло' })).toBeInTheDocument();
+    expect(
+      screen.getByText('Раунд завершился по таймеру. Награда за этот раунд не начислена.'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('0 КУМ')).toBeInTheDocument();
   });
 
   it('shows a fallback when opened without round result data', () => {
@@ -225,6 +235,6 @@ describe('GuessResultPage', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('heading', { name: ' ' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Результат недоступен' })).toBeInTheDocument();
   });
 });
