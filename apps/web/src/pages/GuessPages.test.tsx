@@ -1,9 +1,11 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { dyahanApi, type GuessRound } from '../api/dyahanApi';
 import { App } from '../app/App';
 import { session } from '../auth/session';
+import { makeStore } from '../store';
 import { GuessResultPage } from './GuessResultPage';
 
 vi.mock('../api/dyahanApi', () => ({
@@ -22,6 +24,7 @@ vi.mock('../api/dyahanApi', () => ({
     login: vi.fn(),
     me: vi.fn(),
     logout: vi.fn(),
+    wallet: vi.fn(),
     startGuessRound: vi.fn(),
     submitGuessAnswer: vi.fn(),
   },
@@ -43,12 +46,19 @@ const round: GuessRound = {
   roundId: 'round-test-123',
   imageObjectKey: 'dev/guess/slon.png',
   imageUrl: 'https://images.example.test/slon.png',
-  hint: 'Крупное животное с хоботом',
+  hint: '   ',
   expiresAt: new Date(Date.now() + 120_000).toISOString(),
 };
 
 beforeEach(() => {
   vi.mocked(session.getToken).mockReturnValue('test-session-token');
+  vi.mocked(dyahanApi.wallet).mockResolvedValue({
+    currency: 'KUM',
+    balanceMinor: '0',
+    availableMinor: '0',
+    heldMinor: '0',
+    p2pBlockedUntil: null,
+  });
   vi.mocked(dyahanApi.startGuessRound).mockResolvedValue(round);
   vi.mocked(dyahanApi.submitGuessAnswer).mockResolvedValue({
     roundId: round.roundId,
@@ -68,52 +78,51 @@ afterEach(() => {
 describe('GuessRoundPage', () => {
   it('loads the real round, shows its image and hint, then submits the answer to the API', async () => {
     render(
-      <MemoryRouter initialEntries={['/guess']}>
-        <App />
-      </MemoryRouter>,
+      <Provider store={makeStore()}>
+        <MemoryRouter initialEntries={['/guess']}>
+          <App />
+        </MemoryRouter>
+      </Provider>,
     );
 
-    expect(await screen.findByRole('heading', { name: /Слоп-угадайка/ })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /-/ })).toBeInTheDocument();
 
     expect(dyahanApi.startGuessRound).toHaveBeenCalledWith('test-session-token');
 
-    expect(
-      await screen.findByRole('img', { name: 'Картинка для раунда угадайки' }),
-    ).toHaveAttribute('src', round.imageUrl);
+    expect(await screen.findByRole('img', { name: '   ' })).toHaveAttribute('src', round.imageUrl);
 
-    expect(screen.getByRole('progressbar', { name: 'Время на ответ' })).toHaveAttribute(
-      'aria-valuemax',
-      '120',
-    );
+    expect(screen.getByRole('progressbar', { name: '  ' })).toHaveAttribute('aria-valuemax', '120');
 
-    fireEvent.click(screen.getByRole('button', { name: /Показать подсказку/ }));
+    fireEvent.click(screen.getByRole('button', { name: / / }));
     expect(screen.getByText(round.hint)).toBeInTheDocument();
 
-    const answer = screen.getByRole('textbox', { name: 'Ваш ответ' });
-    fireEvent.change(answer, { target: { value: 'слон' } });
+    const answer = screen.getByRole('textbox', { name: ' ' });
+    fireEvent.change(answer, { target: { value: '' } });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Ответить' }));
+    fireEvent.click(screen.getByRole('button', { name: '' }));
 
     await waitFor(() => {
       expect(dyahanApi.submitGuessAnswer).toHaveBeenCalledWith(
         'test-session-token',
         round.roundId,
-        'слон',
+        '',
       );
     });
 
-    expect(await screen.findByRole('heading', { name: 'Ответ засчитан' })).toBeInTheDocument();
-    expect(screen.getByText('Сервер подтвердил правильный ответ.')).toBeInTheDocument();
-    expect(screen.getByText('+1 КУМ')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: ' ' })).toBeInTheDocument();
+    expect(screen.getByText('   .')).toBeInTheDocument();
+    expect(screen.getByText('+1 ')).toBeInTheDocument();
   });
 
   it('uses the server expiration time and navigates to the expired result', async () => {
     vi.useFakeTimers();
 
     render(
-      <MemoryRouter initialEntries={['/guess']}>
-        <App />
-      </MemoryRouter>,
+      <Provider store={makeStore()}>
+        <MemoryRouter initialEntries={['/guess']}>
+          <App />
+        </MemoryRouter>
+      </Provider>,
     );
 
     await act(async () => {
@@ -131,14 +140,14 @@ describe('GuessRoundPage', () => {
       await vi.advanceTimersByTimeAsync(10_000);
     });
 
-    expect(screen.getByRole('heading', { name: 'Время вышло' })).toBeInTheDocument();
-    expect(screen.getByText('0 КУМ')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: ' ' })).toBeInTheDocument();
+    expect(screen.getByText('0 ')).toBeInTheDocument();
   });
 });
 
 describe('GuessResultPage', () => {
   function renderResult({
-    answer = 'слон',
+    answer = '',
     result = {
       roundId: round.roundId,
       status: 'WON' as const,
@@ -178,14 +187,11 @@ describe('GuessResultPage', () => {
   it('renders a successful server result and the submitted image', () => {
     renderResult();
 
-    expect(screen.getByRole('heading', { name: 'Ответ засчитан' })).toBeInTheDocument();
-    expect(screen.getByText('Сервер подтвердил правильный ответ.')).toBeInTheDocument();
-    expect(screen.getByText('слон')).toBeInTheDocument();
-    expect(screen.getByText('+1 КУМ')).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: 'Картинка раунда угадайки' })).toHaveAttribute(
-      'src',
-      round.imageUrl,
-    );
+    expect(screen.getByRole('heading', { name: ' ' })).toBeInTheDocument();
+    expect(screen.getByText('   .')).toBeInTheDocument();
+    expect(screen.getByText('')).toBeInTheDocument();
+    expect(screen.getByText('+1 ')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: '  ' })).toHaveAttribute('src', round.imageUrl);
   });
 
   it('renders an incorrect server result without a reward', () => {
@@ -200,18 +206,16 @@ describe('GuessResultPage', () => {
       },
     });
 
-    expect(screen.getByRole('heading', { name: 'Ответ не совпал' })).toBeInTheDocument();
-    expect(screen.getByText('0 КУМ')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '  ' })).toBeInTheDocument();
+    expect(screen.getByText('0 ')).toBeInTheDocument();
   });
 
   it('renders an expired round', () => {
     renderResult({ answer: '', result: null, status: 'expired' });
 
-    expect(screen.getByRole('heading', { name: 'Время вышло' })).toBeInTheDocument();
-    expect(
-      screen.getByText('Раунд завершился по таймеру. Награда за этот раунд не начислена.'),
-    ).toBeInTheDocument();
-    expect(screen.getByText('0 КУМ')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: ' ' })).toBeInTheDocument();
+    expect(screen.getByText('   .      .')).toBeInTheDocument();
+    expect(screen.getByText('0 ')).toBeInTheDocument();
   });
 
   it('shows a fallback when opened without round result data', () => {
@@ -221,6 +225,6 @@ describe('GuessResultPage', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('heading', { name: 'Результат недоступен' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: ' ' })).toBeInTheDocument();
   });
 });

@@ -27,7 +27,8 @@ export function App() {
 
     let active = true;
 
-    void dyahanApi.wallet(token)
+    void dyahanApi
+      .wallet(token)
       .then((wallet) => {
         const available = Number(wallet.availableMinor);
         const reserved = Number(wallet.heldMinor);
